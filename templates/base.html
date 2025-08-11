@@ -1,0 +1,129 @@
+<!doctype html>
+{% load static %}
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>
+    {% block title %}
+        {{ og_title|default:"Decorkz.kz — магазин молдингов и декора" }}
+    {% endblock %}
+    </title>
+
+    <!-- Классическая иконка для всех браузеров -->
+    <link rel="shortcut icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+    <!-- Актуальный favicon для современных браузеров -->
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="{% static 'dist/styles.css' %}" rel="stylesheet">
+
+<meta name="description" content="{% block meta_description %}{{ meta_description|default:'Магазин молдингов и декоративных элементов для интерьера. Быстрая доставка по Казахстану.' }}{% endblock %}">
+<meta name="keywords" content="{% block meta_keywords %}{{ meta_keywords|default:'молдинги, декор, купить, Казахстан, интерьер, каталог' }}{% endblock %}">
+<meta property="og:title" content="{% block og_title %}{{ og_title|default:'Decorkz.kz — магазин молдингов и декора' }}{% endblock %}">
+<meta property="og:description" content="{% block og_description %}{{ og_description|default:meta_description|default:'Магазин молдингов и декоративных элементов для интерьера. Быстрая доставка по Казахстану.' }}{% endblock %}">
+<meta property="og:image" content="{% block og_image %}{{ og_image|default:'/static/images/og-image.png' }}{% endblock %}">
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+<link rel="canonical" href="{{ request.build_absolute_uri }}">
+
+</head>
+<body>
+{% include "components/nav.html" %}
+
+{% block content %}{% endblock %}
+
+{% include "components/footer.html" %}
+{% include "components/searchModal.html" %}
+{% include "components/sidebar.html" %}
+
+<!-- BEGIN Modal open -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const openBtns = document.querySelectorAll('.js-open');
+
+        openBtns.forEach(btn => {
+            const target = document.querySelector(btn.dataset.target);
+            if (!target) return;
+
+            btn.addEventListener('click', () => openElement(target));
+        });
+
+        const openElement = (target) => {
+            const overlay = target.querySelector('[data-overlay]');
+            const panel = target.querySelector('[data-panel]');
+
+            target.classList.remove('hidden');
+
+            requestAnimationFrame(() => {
+                overlay?.classList.remove('opacity-0');
+
+                if (target.matches('[data-modal]')) {
+                    panel?.classList.remove('opacity-0', 'scale-95');
+                } else if (target.matches('[data-sidebar]')) {
+                    panel?.classList.remove('-translate-x-full');
+                }
+            });
+        };
+
+        const closeElement = (target) => {
+            const overlay = target.querySelector('[data-overlay]');
+            const panel = target.querySelector('[data-panel]');
+
+            overlay?.classList.add('opacity-0');
+
+            if (target.matches('[data-modal]')) {
+                panel?.classList.add('opacity-0', 'scale-95');
+            } else if (target.matches('[data-sidebar]')) {
+                panel?.classList.add('-translate-x-full');
+            }
+
+            setTimeout(() => target.classList.add('hidden'), 300);
+        };
+
+        // Исправленный обработчик клика
+        document.addEventListener('click', (e) => {
+            const overlay = e.target.closest('[data-overlay]');
+            const closeBtn = e.target.closest('[data-close]');
+
+            if (!overlay && !closeBtn) return;
+
+            const target = e.target.closest('[data-modal], [data-sidebar]');
+            if (target) closeElement(target);
+        });
+
+        // Закрытие по Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('[data-modal]:not(.hidden), [data-sidebar]:not(.hidden)')
+                    .forEach(closeElement);
+            }
+        });
+    });
+
+</script>
+<!-- END Modal open -->
+
+    <!-- --- ALPINE JS БЛОК --- -->
+    <script src="{% static 'dist/js/core/api.js' %}"></script>
+    <script src="{% static 'dist/js/components/catalog.js' %}"></script>
+    <script src="{% static 'dist/js/components/product.js' %}"></script>
+    <script src="{% static 'dist/js/components/sidebar.js' %}"></script>
+    <script src="{% static 'dist/js/components/homeCategories.js' %}"></script>
+    <script src="{% static 'dist/js/components/searchModal.js' %}"></script>
+    <script src="{% static 'dist/js/core/alpine-init.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <!-- --- END ALPINE JS БЛОК --- -->
+
+<!-- BEGIN price format -->
+<script>
+  document.querySelectorAll('.price').forEach(el => {
+    const value = Number(el.textContent);
+    if (!isNaN(value)) {
+      el.textContent = value.toLocaleString('ru-RU');
+    }
+  });
+</script>
+<!-- END price format -->
+</body>
+</html>

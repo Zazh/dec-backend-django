@@ -1,0 +1,310 @@
+{% extends "base.html" %}
+{% block title %}{{ og_title }}{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+{% block meta_keywords %}{{ meta_keywords }}{% endblock %}
+{% block og_description %}{{ og_description }}{% endblock %}
+{% block og_image %}{{ og_image }}{% endblock %}
+
+{% block content %}
+{% load static %}
+{% load number_format %}
+
+<!-- BEGIN subnav -->
+<section class="md:hidden fixed top-[3.5rem] bg-white border-b-[1px] border-gray-300 flex w-full h-[3rem] justify-between items-center">
+  <div class="w-[4rem] h-full">
+  {% if category_chain|length > 1 %}
+      {% with subcat=category_chain|last %}
+      <a href="{% url 'catalog-by-slug' subcat.slug %}" class="py-2 pl-2 text-black w-full h-full flex items-center" type="button">
+        <svg class="h-8" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+          <path fill-rule="evenodd" d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" />
+        </svg>
+      </a>
+      {% endwith %}
+      {% elif category_chain %}
+            {% with cat=category_chain.0 %}
+          <a href="{% url 'catalog-by-slug' cat.slug %}" class="py-2 pl-2 text-black w-full h-full flex items-center" type="button">
+            <svg class="h-8" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+              <path fill-rule="evenodd" d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" />
+            </svg>
+          </a>
+            {% endwith %}
+      {% else %}
+        <a href="{% url 'catalog' %}" class="py-2 pl-2 text-black w-full h-full flex items-center" type="button">
+          <svg class="h-8" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+            <path fill-rule="evenodd" d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" />
+          </svg>
+        </a>
+  {% endif %}
+  </div>
+  <div class="flex justify-center items-center">
+    <h1 class="text-md font-medium">{{ product.title }}</h1>
+  </div>
+  <div class="w-[4rem] h-full">
+
+  </div>
+</section>
+<!-- END subnav -->
+
+<!-- BEGIN breadcrumbs -->
+<div class="[ pt-[7.5rem] md:pt-[4.5rem] ] px-4">
+    <ul class="[ pt-4 ] hidden col-span-full lg:flex flex-row items-center gap-2 text-sm font-medium">
+      <li>
+        <a href="/" class="flex items-center gap-2 text-gray-500 hover:text-pink-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon"><path fill-rule="evenodd" d="M9.293 2.293a1 1 0 0 1 1.414 0l7 7A1 1 0 0 1 17 11h-1v6a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-6H3a1 1 0 0 1-.707-1.707l7-7Z" clip-rule="evenodd"></path></svg>
+          <svg class="size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+            <path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"></path>
+          </svg>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'catalog' %}" class="flex items-center gap-2 text-gray-500 hover:text-pink-600">
+          <span>Категории</span>
+          <svg class="size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+            <path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+          </svg>
+        </a>
+      </li>
+      {% for cat in category_chain %}
+        <li>
+          <a href="{% url 'catalog-by-slug' cat.slug %}" class="flex items-center gap-2 text-gray-500 hover:text-blue-600">
+            <span>{{ cat.title }}</span>
+            <svg class="size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+              <path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+            </svg>
+          </a>
+        </li>
+      {% endfor %}
+      <li>
+        <span class="font-[500] text-black">{{ product.title }}</span>
+      </li>
+    </ul>
+</div>
+<!-- END breadcrumbs -->
+
+<section class="container-full lg:gap-8 xl:gap-0 pt-4 pb-[3rem]">
+  <div class="col-span-full lg:col-span-6 flex items-center justify-center overflow-hidden border-[1px] border-gray-300 aspect-square">
+
+    {% if product.images.exists %}
+    <div x-data="{
+      i: 0,
+      images: [{% for image in product.images.all %}'{{ image.default_url }}'{% if not forloop.last %},{% endif %}{% endfor %}]
+    }"
+    class="relative w-full flex items-center justify-center aspect-square overflow-hidden">
+
+  <template x-for="(src, idx) in images" :key="idx">
+    <img x-show="i === idx"
+         :src="src"
+         alt="{{ product.title }}"
+         class="w-full object-contain transition-all duration-300"
+         loading="lazy">
+  </template>
+
+  <!-- Стрелка влево -->
+  <button
+    x-show="images.length > 1"
+    @click="i = i === 0 ? images.length - 1 : i - 1"
+    class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-2 shadow hover:bg-gray-100 transition"
+    type="button"
+    aria-label="Предыдущая картинка">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+    </svg>
+  </button>
+
+  <!-- Стрелка вправо -->
+  <button
+    x-show="images.length > 1"
+    @click="i = i === images.length - 1 ? 0 : i + 1"
+    class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-2 shadow hover:bg-gray-100 transition"
+    type="button"
+    aria-label="Следующая картинка">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+    </svg>
+  </button>
+</div>
+      {% else %}
+      <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" width="160px" height="160px" viewBox="0 0 32 32" id="icon"><defs><style>.cls-1{fill:none;}</style></defs><title>no-image</title><path d="M30,3.4141,28.5859,2,2,28.5859,3.4141,30l2-2H26a2.0027,2.0027,0,0,0,2-2V5.4141ZM26,26H7.4141l7.7929-7.793,2.3788,2.3787a2,2,0,0,0,2.8284,0L22,19l4,3.9973Zm0-5.8318-2.5858-2.5859a2,2,0,0,0-2.8284,0L19,19.1682l-2.377-2.3771L26,7.4141Z"/><path d="M6,22V19l5-4.9966,1.3733,1.3733,1.4159-1.416-1.375-1.375a2,2,0,0,0-2.8284,0L6,16.1716V6H22V4H6A2.002,2.002,0,0,0,4,6V22Z"/><rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" class="cls-1" width="32" height="32"/></svg>
+  {% endif %}
+
+
+  </div>
+  <div class="col-span-full lg:col-span-6 lg:col-start-7 xl:col-start-8 xl:col-span-5">
+    <div class="flex flex-col gap-2 pt-[3rem]">
+      <h1 class="font-bold text-4xl">{{ product.title }}</h1>
+      <h4 class="text-sm font-medium text-gray-500">Артикул: <span>{{ product.sku }}</span></h4>
+      {% if product.description %}
+        <p class="pt-4 text-sm">
+          {{ product.description|safe }}
+        </p>
+      {% endif %}
+    </div>
+    <ol class="pt-[1rem]">
+<!--      <li>-->
+<!--        <ul>-->
+<!--          {% if size_string %}-->
+<!--            <li class="flex text-sm items-center gap-2 border-b-[1px] border-gray-300 py-3">-->
+<!--              <span class="w-[60%] inline-block font-medium text-gray-500">Размер</span>-->
+<!--              <span class="w-[40%] inline-block font-medium text-black">{{ size_string }}</span>-->
+<!--            </li>-->
+<!--          {% endif %}-->
+<!--            <li class="flex text-sm items-center gap-2 [ border-b-[1px] border-gray-300] ] [ py-3 ]">-->
+<!--              <span class="w-[60%] inline-block [ font-medium text-gray-500 ]">Категория</span>-->
+<!--                <span class="w-[40%] inline-block [ font-medium text-black ]">{{ product.category.title }}</span>-->
+<!--            </li>-->
+<!--        </ul>-->
+<!--      </li>-->
+
+        {% for group_name, attributes in attribute_groups.items %}
+        <li class="pt-4">
+          {% if group_name != base_group_name %}
+              <h3 class="text-lg py-4 font-bold">{{ group_name }}</h3>
+          {% endif %}
+          <ul>
+            {% for attr in attributes %}
+              <li class="flex text-sm  gap-2 [ border-b-[1px] border-gray-300] ] [ py-3 ]">
+                <span class="w-[60%] inline-block [ font-medium text-gray-500 ] attr-name">{{ attr.attribute.name }}</span>
+                <span class="w-[40%] inline-block [ font-medium text-black ]">{{ attr.value|humanize_number }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        </li>
+      {% endfor %}
+
+
+    </ol>
+    <div class="pt-[3rem]">
+      <h5 class="text-2xl font-bold text-pink-500">
+              <span class="text-blue-500 text-sm">
+                <a href="{% url 'points_of_sales' %}">Уточнить цену</a>
+              </span>
+
+<!--        {% if product.price == 0 %}-->
+<!--            <span class="price text-gray-500">Нет в наличии</span>-->
+<!--        {% else %}-->
+<!--            <span class="price">{{ product.price|floatformat:0 }}</span> ₸-->
+<!--        {% endif %}-->
+      </h5>
+    </div>
+  </div>
+</section>
+
+<div class="px-4  border-t-[1px] border-gray-300">
+  <section id="home-hero" class="flex w-full h-[100vh] min-h-[35rem] max-h-[45rem] p-4 pb-[4rem] gap-4 [ overflow-x-auto scroll-smooth snap-x snap-mandatory no-scrollbar ]" x-data="product" x-show="related.length" x-cloak>
+    <template x-for="(p, i) in related" :key="p.id">
+      <article class="flex-shrink-0 snap-start w-full md:w-1/3 lg:w-1/4 h-full relative overflow-hidden transition-all duration-300 md:block">
+      <a class="cursor-none" :href="`/product/${p.slug}/`">
+        <figure>
+
+          <template x-if="p.images && p.images.length > 0">
+          <img
+            :src="p.images[0].preview_url"
+            class="[ border-[1px] border-gray-300 ] object-cover w-full aspect-square"
+            loading="lazy"
+            :alt="p.title"
+            :title="p.title">
+          </template>
+
+          <template x-if="!p.images || p.images.length === 0">
+            <div class="flex items-center justify-center bg-gray-100 text-gray-400 aspect-square w-full h-auto text-xs font-medium" style="min-height:120px;">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" width="60px" height="60px" viewBox="0 0 32 32" id="icon"><defs><style>.cls-1{fill:none;}</style></defs><title>no-image</title><path d="M30,3.4141,28.5859,2,2,28.5859,3.4141,30l2-2H26a2.0027,2.0027,0,0,0,2-2V5.4141ZM26,26H7.4141l7.7929-7.793,2.3788,2.3787a2,2,0,0,0,2.8284,0L22,19l4,3.9973Zm0-5.8318-2.5858-2.5859a2,2,0,0,0-2.8284,0L19,19.1682l-2.377-2.3771L26,7.4141Z"/><path d="M6,22V19l5-4.9966,1.3733,1.3733,1.4159-1.416-1.375-1.375a2,2,0,0,0-2.8284,0L6,16.1716V6H22V4H6A2.002,2.002,0,0,0,4,6V22Z"/><rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" class="cls-1" width="32" height="32"/></svg>
+            </div>
+          </template>
+
+          <figcaption class="py-3 flex gap-1 flex-col">
+            <div class="flex items-center justify-between">
+              <h2 class="[ flex flex-col gap-1 ]">
+                <span class="text-sm uppercase font-bold" x-text="p.title"></span>
+              </h2>
+              <p class="font-medium text-sm text-gray-500"></p>
+            </div>
+            <p class="text-sm text-gray-500 font-medium flex gap-2 ]">
+              <span x-text="formatPrice(p.price)"></span>
+            </p>
+          </figcaption>
+        </figure>
+      </a>
+      </article>
+    </template>
+    <div id="drag-cursor" class="pointer-events-none fixed z-50 hidden"></div>
+  </section>
+</div>
+
+<!-- BEGIN drag and scroll -->
+<script>
+    const slider = document.getElementById('home-hero');
+    const cursor = document.getElementById('drag-cursor');
+
+    let isDragging = false;
+    let startX, scrollLeft;
+    let dragStarted = false;
+
+    // Начало drag (добавлен preventDefault)
+    slider.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        dragStarted = false;
+        startX = e.pageX;
+        scrollLeft = slider.scrollLeft;
+        slider.classList.add('select-none');
+        cursor.classList.add('dragging');
+        e.preventDefault(); // предотвращает захват ссылок браузером!
+    });
+
+    // Drag-логика
+    slider.addEventListener('mousemove', (e) => {
+        cursor.style.left = e.clientX + 'px';
+        cursor.style.top = e.clientY + 'px';
+
+        if (!isDragging) return;
+        const x = e.pageX;
+        const walk = (x - startX) * 1.5; // скорость скролла
+        if (Math.abs(x - startX) > 5) dragStarted = true;
+        slider.scrollLeft = scrollLeft - walk;
+    });
+
+    // Конец drag
+    window.addEventListener('mouseup', () => {
+        isDragging = false;
+        slider.classList.remove('select-none');
+        cursor.classList.remove('dragging');
+    });
+
+    // Отмена клика по ссылке, если был drag
+    slider.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', (e) => {
+            if (dragStarted) {
+                e.preventDefault();
+            }
+        });
+    });
+
+    // Показать кастомный курсор
+    slider.addEventListener('mouseenter', () => {
+        cursor.classList.remove('hidden');
+        slider.style.cursor = 'none';
+    });
+    slider.addEventListener('mouseleave', () => {
+        cursor.classList.add('hidden');
+        slider.style.cursor = '';
+    });
+
+</script>
+<!-- END drag and scroll -->
+
+<!-- BEGIN first capitalize word -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.attr-name').forEach(function(el) {
+      el.textContent = capitalizeFirst(el.textContent);
+    });
+  });
+
+  function capitalizeFirst(str) {
+    if (!str) return '';
+    return str[0].toUpperCase() + str.slice(1);
+  }
+</script>
+<!-- END first capitalize word -->
+
+
+{% endblock %}

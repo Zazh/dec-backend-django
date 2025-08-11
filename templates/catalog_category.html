@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}{{ og_title }}{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+{% block meta_keywords %}{{ meta_keywords }}{% endblock %}
+{% block og_description %}{{ og_description }}{% endblock %}
+{% block og_image %}{{ og_image }}{% endblock %}
+
+{% block content %}
+
+{% load static %}
+
+<section class="grid grid-cols-10 pb-[4rem] px-4 gap-4" >
+  <div class="border-b-[1px] border-gray-300 col-span-full pt-[10rem]">
+      <h1 class="text-4xl md:text-6xl font-medium pb-[1rem] items-center flex gap-4">
+      {{ category.title }}
+    </h1>
+  </div>
+
+    {% for subcat in subcategories %}
+    <article class="col-span-5 md:col-span-2">
+        <a href="{% url 'catalog-by-slug' subcat.slug %}">
+            <figure>
+                {% if subcat.image %}
+                    <img src="{{ subcat.thumb }}" alt="{{ subcat.title }}">
+                {% endif %}
+                <figcaption class="py-3 flex gap-1 flex-col">
+                    <div class="flex items-center justify-between">
+                        <h2 class="[ flex flex-col gap-1 ]">
+                            <span class="text-sm uppercase font-bold">{{ subcat.title|truncatechars:28 }}</span>
+                        </h2>
+                    </div>
+                </figcaption>
+            </figure>
+        </a>
+    </article>
+    {% empty %}
+    <div class="col-span-full py-8 text-center text-gray-400 text-lg">
+        Нет категорий
+    </div>
+    {% endfor %}
+</section>
+
+{% endblock %}

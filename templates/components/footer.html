@@ -1,0 +1,101 @@
+<footer class="container-full pt-[4rem] pb-[6rem] gap-8">
+    <div class="md:order-1 lg:order-none col-span-full md:col-span-6 lg:col-span-4 xl:col-span-3">
+        <div class="pb-4">
+            <a href="/" aria-label="link home page place footer">
+                <svg class="-mt-3" xmlns="http://www.w3.org/2000/svg" width="240" viewBox="0 0 215 52" fill="none">
+                    <path d="M0 33.4132C0.193753 29.2532 1.93317 25.3153 4.87774 22.3703C7.82231 19.4254 11.76 17.6855 15.92 17.4912V33.4112L0 33.4132Z" fill="white"/>
+                    <path d="M15.92 51.295C11.7603 51.1008 7.82292 49.3611 4.87839 46.4166C1.93387 43.4721 0.194237 39.5347 0 35.375H15.92V51.295Z" fill="white"/>
+                    <path d="M33.8018 35.373C33.6076 39.5327 31.868 43.4701 28.9234 46.4146C25.9789 49.3592 22.0415 51.0988 17.8818 51.293V35.373H33.8018Z" fill="white"/>
+                    <path d="M33.8018 16.698C33.8026 20.9972 32.1469 25.1313 29.1787 28.2413C26.2106 31.3514 22.1582 33.1982 17.8638 33.398V-0.00195312C22.1581 0.198133 26.2103 2.04504 29.1784 5.15504C32.1465 8.26504 33.8023 12.399 33.8018 16.698V16.698Z" fill="white"/>
+                    <path d="M40.3608 33.5411C40.5551 29.3814 42.2947 25.444 45.2392 22.4995C48.1838 19.555 52.1212 17.8153 56.2808 17.6211V33.5411H40.3608Z" fill="white"/>
+                    <path d="M56.2808 51.295C52.1212 51.1008 48.1838 49.3611 45.2392 46.4166C42.2947 43.4721 40.5551 39.5347 40.3608 35.375H56.2808V51.295Z" fill="white"/>
+                    <path d="M58.2427 17.6455C62.4023 17.8397 66.3398 19.5794 69.2843 22.5239C72.2288 25.4684 73.9684 29.4059 74.1627 33.5655H58.2427V17.6455Z" fill="white"/>
+                    <path d="M114.366 35.2891C114.172 39.4487 112.432 43.3861 109.487 46.3307C106.543 49.2752 102.605 51.0148 98.4458 51.2091V35.2891H114.366Z" fill="white"/>
+                    <path d="M80.4788 34.5889C80.4788 30.2879 82.1358 26.1523 85.1055 23.0412C88.0753 19.9301 92.1295 18.0827 96.4258 17.8829V51.2959C92.1294 51.0958 88.0752 49.2482 85.1054 46.137C82.1357 43.0257 80.4788 38.89 80.4788 34.5889Z" fill="white"/>
+                    <path d="M98.4751 17.8086C102.635 18.0028 106.572 19.7425 109.517 22.687C112.461 25.6315 114.201 29.5689 114.395 33.7286H98.4751V17.8086Z" fill="white"/>
+                    <path d="M121.083 33.7667C121.277 29.607 123.017 25.6696 125.961 22.7251C128.906 19.7806 132.843 18.0409 137.003 17.8467V33.7667H121.083Z" fill="white"/>
+                    <path d="M137.003 51.295C132.843 51.1008 128.906 49.3611 125.961 46.4166C123.017 43.4721 121.277 39.5347 121.083 35.375H137.003V51.295Z" fill="white"/>
+                    <path d="M154.651 35.2881C154.457 39.4477 152.717 43.3852 149.773 46.3297C146.828 49.2742 142.891 51.0138 138.731 51.2081V35.2881H154.651Z" fill="white"/>
+                    <path d="M138.759 17.8711C142.918 18.0653 146.856 19.805 149.8 22.7495C152.745 25.694 154.485 29.6314 154.679 33.7911H138.759V17.8711Z" fill="white"/>
+                    <path d="M161.444 33.7999C161.638 29.6402 163.378 25.7028 166.322 22.7583C169.267 19.8137 173.204 18.0741 177.364 17.8799V33.7999H161.444Z" fill="white"/>
+                    <path d="M177.364 35.3739C177.17 39.5336 175.43 43.471 172.485 46.4156C169.541 49.3601 165.604 51.0997 161.444 51.2939V35.3739H177.364Z" fill="white"/>
+                    <path d="M195.04 17.9043C194.845 22.064 193.106 26.0014 190.161 28.9459C187.217 31.8904 183.279 33.6301 179.12 33.8243V17.9043H195.04Z" fill="white"/>
+                    <path d="M201 25V18H202.94V20.84L205.35 18H207.65L205 21.01L207.74 25H205.41L203.65 22.4L202.94 23.19V25H201Z" fill="white"/>
+                    <path d="M208.085 25V23.59L211.595 19.64H208.205V18H214.275V19.41L210.765 23.36H214.275V25H208.085Z" fill="white"/>
+                </svg>
+            </a>
+        </div>
+        {% if footer_contact and footer_contact.phones.all %}
+            {% for phone in footer_contact.phones.all %}
+            <div class="flex gap-4 pt-8">
+                <div class="flex">
+                    <svg class="size-5 mt-1" xmlns="http://www.w3.org/2000/svg" width="23.738" height="23.684" viewBox="0 0 23.738 23.684">
+                        <g id="call-answer" transform="translate(0 -0.394)">
+                            <g id="Group_38" data-name="Group 38" transform="translate(0 0.394)">
+                                <g id="Group_37" data-name="Group 37" transform="translate(0 0)">
+                                    <path id="Path_23" data-name="Path 23" d="M23.205,19.126,19.539,15.46a1.911,1.911,0,0,0-2.695.051L15,17.357l-.364-.2a18.379,18.379,0,0,1-4.442-3.213,18.482,18.482,0,0,1-3.219-4.45c-.068-.124-.134-.243-.2-.356L8.012,7.9l.609-.61a1.91,1.91,0,0,0,.049-2.7L5,.926A1.909,1.909,0,0,0,2.31.976L1.276,2.015l.028.028a5.975,5.975,0,0,0-.851,1.5A6.226,6.226,0,0,0,.075,5.068C-.41,9.081,1.424,12.749,6.4,17.726c6.879,6.879,12.423,6.359,12.662,6.334a6.194,6.194,0,0,0,1.527-.384,5.954,5.954,0,0,0,1.5-.848l.023.02,1.047-1.025A1.913,1.913,0,0,0,23.205,19.126Z" transform="translate(0 -0.394)" fill="#fff"/>
+                                </g>
+                            </g>
+                        </g>
+                    </svg>
+                </div>
+                <div>
+                <a href="tel:{{ footer_contact.phones.first.number|cut:' ' }}" class="text-white font-bold text-2xl mask-phone">{{ footer_contact.phones.first.number }}</a>
+                {% if phone.name %}
+                    <p class="text-gray-200">{{ phone.name }}</p>
+                {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+    </div>
+    <div class="md:order-3 lg:order-none col-span-full md:col-span-6 lg:col-span-4 xl:col-span-3">
+        <h1 class="[ hidden lg:inline-block ] [ pt-4 md:pt-0 ] text-white font-bold text-lg pb-6 uppercase">Социальные сети</h1>
+        <ul class="flex flex-row items-center gap-8">
+            {% if footer_contact and footer_contact.socials.all %}
+                {% for social in footer_contact.socials.all %}
+                <li class="text-gray-200">
+                    <a href="{{ social.url }}" title="{{ social.name }}">
+                        {{ social.svg_icon|safe }}
+                    </a>
+                </li>
+                {% endfor %}
+            {% endif %}
+        </ul>
+    </div>
+    <div class="md:order-2 lg:order-none col-span-full md:col-span-6 lg:col-span-4 xl:col-span-3">
+        <h1 class="[ pt-4 md:pt-0 ]  text-white font-bold text-lg pb-6 uppercase">СЕРВИС И ПОДДЕРЖКА</h1>
+        <ul class="flex flex-col gap-3">
+            <li><a href="https://decorkz.kz/blog/about/" target="_blank" class="text-gray-200 text-sm md:text-md">Партнерам и диллерам</a></li>
+            <li><a href="https://decorkz.kz/blog/politics/" target="_blank" class="text-gray-200 text-sm md:text-md">Политика конфиденциальности</a></li>
+            <li><a href="https://decorkz.kz/blog/cookie/" target="_blank" class="text-gray-200 text-sm md:text-md">Политика использования куки</a></li>
+        </ul>
+    </div>
+    <div class="hidden xl:block col-span-full md:col-span-6 xl:col-span-3">
+        <ul class="[ pt-4 md:pt-0 ] flex flex-col gap-6">
+            <li><a href="/" class="uppercase text-white font-medium text-sm md:text-md tracking-wider">Главная</a></li>
+            <li><a href="/catalog" class="uppercase text-white font-medium text-sm md:text-md tracking-wider">Каталог</a></li>
+            <li><a href="/contacts" class="uppercase text-white font-medium text-sm md:text-md tracking-wider">Контакты</a></li>
+            <li><a href="/points-of-sales" class="uppercase text-white font-medium text-sm md:text-md tracking-wider">Где купить</a></li>
+            <li><a href="/blog" class="uppercase text-white font-medium text-sm md:text-md tracking-wider">Блог</a></li>
+        </ul>
+    </div>
+</footer>
+
+<script>
+    document.querySelectorAll('.mask-phone').forEach(function(el) {
+        let num = el.textContent.replace(/\D/g, ''); // только цифры
+
+        if(num.length === 11 && num.startsWith('7')) {
+            // Преобразуем 7707683323 -> +7 (770) 768-33-23
+            let formatted = '+7 ('
+                + num.slice(1,4) + ') '
+                + num.slice(4,7) + '-'
+                + num.slice(7,9) + '-'
+                + num.slice(9,11);
+
+            el.textContent = formatted;
+        }
+    });
+</script>

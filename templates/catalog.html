@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% block title %}{{ og_title }}{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+{% block meta_keywords %}{{ meta_keywords }}{% endblock %}
+{% block og_description %}{{ og_description }}{% endblock %}
+{% block og_image %}{{ og_image }}{% endblock %}
+
+{% block content %}
+{% load static %}
+<!-- BEGIN subnav -->
+<section class="md:hidden fixed top-[3.5rem] bg-white border-b-[1px] border-gray-300 flex w-full h-[3rem] justify-between items-center">
+  <div class="w-[4rem] h-full">
+    {% if current_category.parent %}
+    <a href="{% url 'catalog-by-slug' current_category.parent.slug %}" class="py-2 pl-2 text-black w-full h-full flex items-center" type="button">
+      <svg class="h-8" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+        <path fill-rule="evenodd" d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" />
+      </svg>
+    </a>
+    {% else %}
+    <a href="{% url 'catalog' %}" class="py-2 pl-2 text-black w-full h-full flex items-center" type="button">
+      <svg class="h-8" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+        <path fill-rule="evenodd" d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" />
+      </svg>
+    </a>
+{% endif %}
+
+
+  </div>
+  <div class="flex justify-center items-center">
+    <h1 class="text-md font-medium">{{ current_category }}</h1>
+  </div>
+  <div class="w-[4rem] h-full">
+    <button data-target="#filter-modal" class="js-open w-full h-full pr-4 flex justify-end items-center">
+      <svg class="h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g id="style=fill">
+          <g id="filter-circle">
+            <path id="vector (Stroke)" fill-rule="evenodd" clip-rule="evenodd" d="M7.75 17.5C7.75 17.0858 7.41421 16.75 7 16.75H2C1.58579 16.75 1.25 17.0858 1.25 17.5C1.25 17.9142 1.58579 18.25 2 18.25H7C7.41421 18.25 7.75 17.9142 7.75 17.5Z" fill="#000000"/>
+            <path id="vector (Stroke)_2" fill-rule="evenodd" clip-rule="evenodd" d="M16.25 6.5C16.25 6.08579 16.5858 5.75 17 5.75H22C22.4142 5.75 22.75 6.08579 22.75 6.5C22.75 6.91421 22.4142 7.25 22 7.25H17C16.5858 7.25 16.25 6.91421 16.25 6.5Z" fill="#000000"/>
+            <path id="vector (Stroke)_3" fill-rule="evenodd" clip-rule="evenodd" d="M22.75 17.5C22.75 17.0858 22.4142 16.75 22 16.75H13C12.5858 16.75 12.25 17.0858 12.25 17.5C12.25 17.9142 12.5858 18.25 13 18.25H22C22.4142 18.25 22.75 17.9142 22.75 17.5Z" fill="#000000"/>
+            <path id="vector (Stroke)_4" fill-rule="evenodd" clip-rule="evenodd" d="M1.25 6.5C1.25 6.08579 1.58579 5.75 2 5.75H11C11.4142 5.75 11.75 6.08579 11.75 6.5C11.75 6.91421 11.4142 7.25 11 7.25H2C1.58579 7.25 1.25 6.91421 1.25 6.5Z" fill="#000000"/>
+            <path id="vector (Stroke)_5" fill-rule="evenodd" clip-rule="evenodd" d="M13.75 17.3999C13.75 15.3288 12.0711 13.6499 10 13.6499C7.92893 13.6499 6.25 15.3288 6.25 17.3999C6.25 19.471 7.92893 21.1499 10 21.1499C12.0711 21.1499 13.75 19.471 13.75 17.3999Z" fill="#000000"/>
+            <path id="vector (Stroke)_6" fill-rule="evenodd" clip-rule="evenodd" d="M10.25 6.3999C10.25 4.32883 11.9289 2.6499 14 2.6499C16.0711 2.6499 17.75 4.32883 17.75 6.3999C17.75 8.47097 16.0711 10.1499 14 10.1499C11.9289 10.1499 10.25 8.47097 10.25 6.3999Z" fill="#000000"/>
+          </g>
+        </g>
+      </svg>
+    </button>
+  </div>
+</section>
+<!-- END subnav -->
+<section class="container-full pb-[2rem] gap-4">
+  <div class="[ pt-[10rem] md:pt-[10rem] ] border-b-[1px] border-gray-300 col-span-full">
+    <h1 class="text-4xl md:text-6xl font-medium pb-[1rem]">{{ current_category }}</h1>
+    <div class="flex md:justify-between items-center pb-4">
+      <div class="flex items-center gap-4">
+        <div class="fixed md:static bottom-4 w-full justify-center px-4 md:px-0 md:justify-start left-0 flex">
+          <button data-target="#filter-modal" class="js-open [ hidden md:flex gap-1 ] border-[1px] bg-white border-gray-300 text-lg md:text-sm font-normal py-2 px-5 md:px-3 cursor-pointer hover:bg-gray-100 rounded-full md:rounded-md">
+            <svg class="w-5 md:w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <g id="style=fill">
+                <g id="filter-circle">
+                  <path id="vector (Stroke)" fill-rule="evenodd" clip-rule="evenodd" d="M7.75 17.5C7.75 17.0858 7.41421 16.75 7 16.75H2C1.58579 16.75 1.25 17.0858 1.25 17.5C1.25 17.9142 1.58579 18.25 2 18.25H7C7.41421 18.25 7.75 17.9142 7.75 17.5Z" fill="#000000"/>
+                  <path id="vector (Stroke)_2" fill-rule="evenodd" clip-rule="evenodd" d="M16.25 6.5C16.25 6.08579 16.5858 5.75 17 5.75H22C22.4142 5.75 22.75 6.08579 22.75 6.5C22.75 6.91421 22.4142 7.25 22 7.25H17C16.5858 7.25 16.25 6.91421 16.25 6.5Z" fill="#000000"/>
+                  <path id="vector (Stroke)_3" fill-rule="evenodd" clip-rule="evenodd" d="M22.75 17.5C22.75 17.0858 22.4142 16.75 22 16.75H13C12.5858 16.75 12.25 17.0858 12.25 17.5C12.25 17.9142 12.5858 18.25 13 18.25H22C22.4142 18.25 22.75 17.9142 22.75 17.5Z" fill="#000000"/>
+                  <path id="vector (Stroke)_4" fill-rule="evenodd" clip-rule="evenodd" d="M1.25 6.5C1.25 6.08579 1.58579 5.75 2 5.75H11C11.4142 5.75 11.75 6.08579 11.75 6.5C11.75 6.91421 11.4142 7.25 11 7.25H2C1.58579 7.25 1.25 6.91421 1.25 6.5Z" fill="#000000"/>
+                  <path id="vector (Stroke)_5" fill-rule="evenodd" clip-rule="evenodd" d="M13.75 17.3999C13.75 15.3288 12.0711 13.6499 10 13.6499C7.92893 13.6499 6.25 15.3288 6.25 17.3999C6.25 19.471 7.92893 21.1499 10 21.1499C12.0711 21.1499 13.75 19.471 13.75 17.3999Z" fill="#000000"/>
+                  <path id="vector (Stroke)_6" fill-rule="evenodd" clip-rule="evenodd" d="M10.25 6.3999C10.25 4.32883 11.9289 2.6499 14 2.6499C16.0711 2.6499 17.75 4.32883 17.75 6.3999C17.75 8.47097 16.0711 10.1499 14 10.1499C11.9289 10.1499 10.25 8.47097 10.25 6.3999Z" fill="#000000"/>
+                </g>
+              </g>
+            </svg>
+            <span class="pr-1">Фильтры</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% for p in page_obj.object_list %}
+  <article class="md:col-span-4 lg:col-span-3 col-span-full">
+    <a href="{% url 'product-detail' slug=p.slug %}" role="link">
+      <figure>
+        {% if p.image %}
+        <div class="[ border-[1px] border-gray-300 ] aspect-square w-full flex items-center justify-center overflow-hidden">
+          <img src="{{ p.image }}" class="object-cover" loading="lazy" alt="{{ p.alt }}" title="{{ p.title_attr }}">
+        </div>
+        {% else %}
+          <div class="flex items-center justify-center bg-gray-100 text-gray-400 aspect-square w-full h-auto [ border-[1px] border-gray-300 ]" style="min-height:120px;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" width="60px" height="60px" viewBox="0 0 32 32" id="icon"><defs><style>.cls-1{fill:none;}</style></defs><title>no-image</title><path d="M30,3.4141,28.5859,2,2,28.5859,3.4141,30l2-2H26a2.0027,2.0027,0,0,0,2-2V5.4141ZM26,26H7.4141l7.7929-7.793,2.3788,2.3787a2,2,0,0,0,2.8284,0L22,19l4,3.9973Zm0-5.8318-2.5858-2.5859a2,2,0,0,0-2.8284,0L19,19.1682l-2.377-2.3771L26,7.4141Z"/><path d="M6,22V19l5-4.9966,1.3733,1.3733,1.4159-1.416-1.375-1.375a2,2,0,0,0-2.8284,0L6,16.1716V6H22V4H6A2.002,2.002,0,0,0,4,6V22Z"/><rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" class="cls-1" width="32" height="32"/></svg>
+          </div>
+        {% endif %}
+        <figcaption class="py-3 flex gap-1 flex-col">
+          <div class="flex items-center justify-between">
+            <h2 class="[ flex flex-col gap-1 ]">
+              <span class="text-md uppercase font-bold [ title-product ]">{{p.title|truncatechars:28}}</span>
+            </h2>
+          </div>
+          <p class="text-sm text-gray-500 font-medium flex gap-2 ]">
+<!--            {% if p.price == 0 %}-->
+<!--            <span class="price">Нет в наличии</span>-->
+<!--            {% else %}-->
+<!--            <span><span class="price">{{ p.price }}</span> ₸</span>-->
+<!--            {% endif %}-->
+          </p>
+        </figcaption>
+      </figure>
+    </a>
+  </article>
+  {% empty %}
+    <div class="col-span-full py-8 text-center text-gray-400 text-lg" style="height:70vh">
+        Нет товаров
+    </div>
+  {% endfor %}
+
+  <!-- BEGIN pagination -->
+  <div class="border-t-[1px] flex justify-between flex-wrap gap-4 items-center py-4 border-gray-300 col-span-full">
+  {% if page_obj.paginator.num_pages > 1 %}
+    <div>
+      <p class="text-sm ">
+        Показано
+        <span class="font-medium">{{ page_obj.start_index }}</span>
+        по
+        <span class="font-medium">{{ page_obj.end_index }}</span>
+        из
+        <span class="font-medium">{{ page_obj.paginator.count }}</span>
+        товаров
+      </p>
+    </div>
+  {% endif %}
+
+
+    <div>
+      <nav class="isolate inline-flex -space-x-px rounded-md overflow-hidden shadow-xs" aria-label="Pagination">
+
+  {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-gray-300 ring-inset hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+      <span class="sr-only">Previous</span>
+      <svg class="size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path fill-rule="evenodd" d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" />
+      </svg>
+    </a>
+  {% endif %}
+
+  {% for i in page_obj.paginator.page_range %}
+      {% if i == 1 or i == page_obj.paginator.num_pages or i >= page_obj.number|add:"-1" and i <= page_obj.number|add:"2" %}
+        {% if page_obj.number == i %}
+          <span aria-current="page" class="relative z-10 inline-flex items-center bg-blue-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ i }}</span>
+        {% else %}
+          <a href="?page={{ i }}" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-50 focus:z-20 focus:outline-offset-0">{{ i }}</a>
+        {% endif %}
+      {% elif i == 2 and page_obj.number > 4 %}
+        <span class="relative inline-flex items-center px-4 py-2 text-sm text-gray-400">...</span>
+      {% elif i == page_obj.paginator.num_pages|add:"-1" and page_obj.number < page_obj.paginator.num_pages|add:"-3" %}
+    {% endif %}
+  {% endfor %}
+
+  {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-gray-300 ring-inset hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+      <span class="sr-only">Next</span>
+      <svg class="size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+      </svg>
+    </a>
+  {% endif %}
+
+</nav>
+
+    </div>
+  </div>
+  <!-- END pagination -->
+
+  {% include "components/filter_modal.html" %}
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      document.querySelectorAll('.title-product').forEach(function (el) {
+          let text = el.textContent.trim();
+          if (text.length > 30) {
+              el.textContent = text.slice(0, 30) + '...';
+          }
+      });
+    });
+  </script>
+
+</section>
+{% endblock %}

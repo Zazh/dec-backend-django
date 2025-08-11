@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+{% block meta_keywords %}{{ meta_keywords }}{% endblock %}
+{% block og_title %}{{ og_title }}{% endblock %}
+{% block og_description %}{{ og_description }}{% endblock %}
+{% block og_image %}{{ og_image }}{% endblock %}
+
+{% block content %}
+{% load static %}
+
+<main class=" flex flex-col">
+    <section class="flex-grow">
+      <div id="articles-list" class="container-full pb-[6rem] gap-4 pt-[8rem]">
+        <div class="col-span-full xl:col-span-8 xl:col-start-3">
+          <h1 class="text-6xl font-medium pb-[3rem]">Контакты</h1>
+          <div class="flex flex-wrap">
+            <div class="w-full lg:w-1/2">
+              <h2 class="text-2xl">{{ contacts.title }}</h2>
+            </div>
+            <div class="w-full lg:w-1/2 pt-[4rem] lg:pt-0">
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <li>
+                  <h3 class="pb-6 text-gray-500 font-medium">E-mail</h3>
+                  <div class="flex flex-col gap-2 text-black">
+                        {% for email in contacts.emails.all %}
+                            <a href="mailto:{{ email.email }}" class="hover:text-blue-600 font-medium">{{ email.email }}</a>
+                        {% endfor %}
+                  </div>
+                </li>
+                <li>
+                  <h3 class="pb-6 text-gray-500 font-medium">Телефон</h3>
+                  <div class="flex flex-col gap-2 text-black">
+                        {% for phone in contacts.phones.all %}
+                            <a href="tel:{{ phone.number }}" class="hover:text-blue-600">{{ phone.number }}</a>
+                        {% endfor %}
+                  </div>
+                </li>
+                <li>
+                  <h3 class="pb-6 text-gray-500 font-medium">Адрес</h3>
+                  <div class="flex flex-col gap-2 text-black">
+                        {% for addr in contacts.addresses.all %}
+                            <a class="hover:text-blue-600 font-medium" href="{{ addr.map_link }}">{{ addr.address }}</a>
+                        {% endfor %}
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+</main>
+
+{% endblock %}
