@@ -178,12 +178,11 @@
               <span class="text-blue-500 text-sm">
                 <a href="{% url 'points_of_sales' %}">Уточнить цену</a>
               </span>
-
-<!--        {% if product.price == 0 %}-->
-<!--            <span class="price text-gray-500">Нет в наличии</span>-->
-<!--        {% else %}-->
-<!--            <span class="price">{{ product.price|floatformat:0 }}</span> ₸-->
-<!--        {% endif %}-->
+        {% if product.price == 0 %}
+            <span class="price text-gray-500">Нет в наличии</span>
+        {% else %}
+            <span class="price">{{ product.price|floatformat:0 }}</span> ₸
+        {% endif %}
       </h5>
     </div>
   </div>
