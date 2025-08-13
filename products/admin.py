@@ -26,7 +26,7 @@ class ProductCategoryAdmin(admin.ModelAdmin):
 class ProductAdmin(admin.ModelAdmin):
     list_display = ("title", "category", "sku", "price")
     list_filter = ("category",)
-    search_fields = ("title",)
+    search_fields = ("title", "sku")
     inlines = [ProductImageInline, ProductAttributeInline]
 
 @admin.register(Attribute)
