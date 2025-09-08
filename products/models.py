@@ -4,7 +4,7 @@ from django.utils.safestring import mark_safe
 from easy_thumbnails.files import get_thumbnailer
 from image_cropping import ImageRatioField
 from django.core.exceptions import ValidationError
-from django.templatetags.static import static
+from urllib.parse import urlparse, parse_qs
 
 from decimal import Decimal, InvalidOperation
 import random
@@ -129,11 +129,13 @@ class Product(models.Model):
     slug = models.SlugField(unique=True, blank=True)
     category = models.ForeignKey(ProductCategory, related_name="products",
                                  on_delete=models.PROTECT)
-    # description = models.TextField(blank=True)
+
     description = models.TextField(blank=True)
 
     sku = models.CharField(unique=True, blank=True, max_length=100)
     price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    youtube_url = models.URLField("YouTube URL", blank=True, help_text="Абсолютная ссылка на видео YouTube")
 
     create = models.DateTimeField(default=timezone.now)
     update = models.DateTimeField(default=timezone.now)

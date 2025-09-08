@@ -12,22 +12,17 @@ class ProductImageInline(ImageCroppingMixin, admin.TabularInline):
     fields = ("image", "cropping", "is_main", "thumbnail_preview")
     readonly_fields = ("thumbnail_preview",)
 
-class ProductAttributeInline(admin.TabularInline):
-    model = ProductAttributeValue
-    extra = 0
-    autocomplete_fields = ["attribute"]
+# class ProductAttributeInline(admin.TabularInline):
+#     model = ProductAttributeValue
+#     extra = 0
+#     autocomplete_fields = ["attribute"]
 
 @admin.register(ProductCategory)
 class ProductCategoryAdmin(admin.ModelAdmin):
     list_display = ("title", "slug", "parent", "thumbnail_preview")
     search_fields = ("title",)
 
-@admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
-    list_display = ("title", "category", "sku", "price")
-    list_filter = ("category",)
-    search_fields = ("title", "sku")
-    inlines = [ProductImageInline, ProductAttributeInline]
+
 
 @admin.register(Attribute)
 class AttributeAdmin(admin.ModelAdmin):
@@ -50,6 +45,13 @@ class ProductAttributeInline(admin.TabularInline):
     form   = ProductAttributeValueForm
     extra  = 0
     autocomplete_fields = ["attribute"]
+
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    list_display = ("title", "category", "sku", "price")
+    list_filter = ("category",)
+    search_fields = ("title", "sku")
+    inlines = [ProductImageInline, ProductAttributeInline]
 
 @admin.register(AttributeGroup)
 class AttributeGroupAdmin(admin.ModelAdmin):

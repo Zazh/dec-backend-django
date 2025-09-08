@@ -10,7 +10,7 @@
 {% load number_format %}
 
 <!-- BEGIN subnav -->
-<section class="md:hidden fixed top-[3.5rem] bg-white border-b-[1px] border-gray-300 flex w-full h-[3rem] justify-between items-center">
+<section class="md:hidden fixed top-[3.5rem] bg-white border-b-[1px] border-gray-300 flex z-50 w-full h-[3rem] justify-between items-center">
   <div class="w-[4rem] h-full">
   {% if category_chain|length > 1 %}
       {% with subcat=category_chain|last %}
@@ -82,52 +82,79 @@
 <!-- END breadcrumbs -->
 
 <section class="container-full lg:gap-8 xl:gap-0 pt-4 pb-[3rem]">
-  <div class="col-span-full lg:col-span-6 flex items-center justify-center overflow-hidden border-[1px] border-gray-300 aspect-square">
+  <div class="product-detail-gallery col-span-full lg:col-span-6">
+    <!-- BEGIN GALLERY -->
+    <div    x-data="productGallery({
+              images: [{% for img in product.images.all %}'{{ img.default_url }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+              youtubeUrl: '{{ product.youtube_url|default:'' }}'
+            })"
 
-    {% if product.images.exists %}
-    <div x-data="{
-      i: 0,
-      images: [{% for image in product.images.all %}'{{ image.default_url }}'{% if not forloop.last %},{% endif %}{% endfor %}]
-    }"
-    class="relative w-full flex items-center justify-center aspect-square overflow-hidden">
+            class="pdg-viewport aspect-[100/85] w-full relative"
+            @pointerdown="startDrag($event)" @pointermove="drag($event)"
+            @pointerup="endDrag($event)" @pointercancel="endDrag($event)" @pointerleave="endDrag($event)"
+            @keydown.arrow-left.prevent="prev()" @keydown.arrow-right.prevent="next()" tabindex="0"
+    >
+      <!-- Слайды -->
+      <div class="absolute inset-0">
+        <template x-for="(m, idx) in media" :key="idx">
+          <div x-show="i === idx" class="absolute inset-0">
+            <!-- Картинка -->
+            <img x-show="m.type === 'image'" :src="m.src" class="w-full h-full object-cover" loading="lazy" />
 
-  <template x-for="(src, idx) in images" :key="idx">
-    <img x-show="i === idx"
-         :src="src"
-         alt="{{ product.title }}"
-         class="w-full object-contain transition-all duration-300"
-         loading="lazy">
-  </template>
+            <!-- YouTube -->
+            <!-- YouTube -->
+            <template x-if="m.type === 'youtube'">
+              <div class="w-full h-full relative">
+                <!-- Превью + кнопка -->
+                <template x-if="!m.play">
+                  <div class="absolute inset-0">
+                    <!-- ВОТ ЭТОЙ КАРТИНКИ НЕ ХВАТАЛО -->
+                    <img :src="thumb(m.id)" class="w-full h-full object-cover" alt="Видео превью">
 
-  <!-- Стрелка влево -->
-  <button
-    x-show="images.length > 1"
-    @click="i = i === 0 ? images.length - 1 : i - 1"
-    class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-2 shadow hover:bg-gray-100 transition"
-    type="button"
-    aria-label="Предыдущая картинка">
-    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-    </svg>
-  </button>
+                    <!-- Оверлей с каноничной иконкой YouTube -->
+                    <button type="button"
+                            @click="play(idx)"
+                            class="absolute inset-0 grid place-items-center focus:outline-none"
+                            aria-label="Смотреть видео">
+                      <svg class="w-16 h-12 drop-shadow" viewBox="0 0 24 24" aria-hidden="true">
+                        <path fill="#FF0000"
+                              d="M23.498 6.186c-.274-1.022-1.077-1.826-2.099-2.1C19.314 3.5 12 3.5 12 3.5s-7.314 0-9.399.586C1.579 4.36.776 5.164.502 6.186C0 8.271 0 12 0 12s0 3.729.502 5.814c.274 1.022 1.077 1.826 2.099 2.1C4.686 20.5 12 20.5 12 20.5s7.314 0 9.399-.586c1.022-.274 1.825-1.078 2.099-2.1C24 15.729 24 12 24 12s0-3.729-.502-5.814z"/>
+                        <path fill="#FFFFFF" d="M9.75 15.02V8.98L15.5 12l-5.75 3.02z"/>
+                      </svg>
+                    </button>
+                  </div>
+                </template>
 
-  <!-- Стрелка вправо -->
-  <button
-    x-show="images.length > 1"
-    @click="i = i === images.length - 1 ? 0 : i + 1"
-    class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-2 shadow hover:bg-gray-100 transition"
-    type="button"
-    aria-label="Следующая картинка">
-    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-    </svg>
-  </button>
-</div>
-      {% else %}
-      <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" width="160px" height="160px" viewBox="0 0 32 32" id="icon"><defs><style>.cls-1{fill:none;}</style></defs><title>no-image</title><path d="M30,3.4141,28.5859,2,2,28.5859,3.4141,30l2-2H26a2.0027,2.0027,0,0,0,2-2V5.4141ZM26,26H7.4141l7.7929-7.793,2.3788,2.3787a2,2,0,0,0,2.8284,0L22,19l4,3.9973Zm0-5.8318-2.5858-2.5859a2,2,0,0,0-2.8284,0L19,19.1682l-2.377-2.3771L26,7.4141Z"/><path d="M6,22V19l5-4.9966,1.3733,1.3733,1.4159-1.416-1.375-1.375a2,2,0,0,0-2.8284,0L6,16.1716V6H22V4H6A2.002,2.002,0,0,0,4,6V22Z"/><rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" class="cls-1" width="32" height="32"/></svg>
-  {% endif %}
+                <!-- Воспроизведение -->
+                <template x-if="m.play">
+                  <iframe class="absolute inset-0 w-full h-full"
+                          :src="embed(m.id)" title="YouTube video" frameborder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          allowfullscreen></iframe>
+                </template>
+              </div>
+            </template>
 
+          </div>
+        </template>
+      </div>
 
+      <!-- Стрелки -->
+      <button x-show="media.length > 1" type="button" class="pdg-arrow pdg-prev" @click="prev()" aria-label="Назад">
+        <svg width="20" height="20" viewBox="0 0 24 24"><path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+      </button>
+      <button x-show="media.length > 1" type="button" class="pdg-arrow pdg-next" @click="next()" aria-label="Вперёд">
+        <svg width="20" height="20" viewBox="0 0 24 24"><path d="M8.59 16.59 10 18l6-6-6-6-1.41 1.41L13.17 12z"/></svg>
+      </button>
+
+      <!-- Точки -->
+      <div x-show="media.length > 1" class="pdg-dots">
+        <template x-for="(m, idx) in media" :key="'dot-'+idx">
+          <button type="button" class="pdg-dot" :class="{'is-active': i === idx}" @click="show(idx)" :aria-label="`Слайд ${idx+1}`"></button>
+        </template>
+      </div>
+    </div>
+    <!-- END GALLERY -->
   </div>
   <div class="col-span-full lg:col-span-6 lg:col-start-7 xl:col-start-8 xl:col-span-5">
     <div class="flex flex-col gap-2 pt-[3rem]">
@@ -290,6 +317,62 @@
 </script>
 <!-- END drag and scroll -->
 
+<!-- BEGIN Gallery -->
+<script>
+  document.addEventListener('alpine:init', () => {
+    Alpine.data('productGallery', ({ images = [], youtubeUrl = '' }) => ({
+      i: 0,
+      media: [],
+      dragging: false, startX: 0, dx: 0,
+
+      init() {
+        // сначала все картинки
+        this.media = images.filter(Boolean).map(src => ({ type: 'image', src }));
+        // одно видео (если есть) — В КОНЕЦ
+        const id = this.youtubeId(youtubeUrl);
+        if (id) this.media.push({ type: 'youtube', id, play: false });
+        // если медиа нет — выходим тихо
+        if (!this.media.length) return;
+        // начинаем с 0 (фото), как и хотели
+        this.i = 0;
+      },
+
+      // навигация (цикличная)
+      next() { if (!this.media.length) return; this.stopVideo(this.i); this.i = (this.i + 1) % this.media.length; },
+      prev() { if (!this.media.length) return; this.stopVideo(this.i); this.i = (this.i - 1 + this.media.length) % this.media.length; },
+      show(idx){ if (!this.media.length) return; this.stopVideo(this.i); this.i = idx; },
+
+      // видео
+      play(idx){ this.media[idx].play = true; },
+      stopVideo(idx){ const m = this.media[idx]; if (m && m.type === 'youtube') m.play = false; },
+      thumb(id){ return `https://i.ytimg.com/vi/${id}/hqdefault.jpg`; },
+      embed(id){ return `https://www.youtube.com/embed/${id}?rel=0&modestbranding=1&playsinline=1&autoplay=1`; },
+
+      // свайп (минимально)
+      startDrag(e){ this.dragging = true; this.startX = e.clientX; this.dx = 0; },
+      drag(e){ if (this.dragging) this.dx = e.clientX - this.startX; },
+      endDrag(){ if (!this.dragging) return; const T = 50; if (Math.abs(this.dx) > T) (this.dx < 0 ? this.next() : this.prev()); this.dragging = false; },
+
+      // парсим абсолютный URL/shorts/embed/id
+      youtubeId(raw){
+        if (!raw) return '';
+        const s = String(raw).trim();
+        const direct = s.match(/^[A-Za-z0-9_-]{11}$/); if (direct) return direct[0];
+        try {
+          const url = new URL(s.startsWith('http') ? s : 'https://youtu.be/' + s);
+          const v = url.searchParams.get('v'); if (v && /^[\w-]{11}$/.test(v)) return v;
+          const m = url.pathname.match(/(?:\/embed\/|\/shorts\/|\/)([A-Za-z0-9_-]{11})(?:$|[/?#])/);
+          return m ? m[1] : '';
+        } catch {
+          const cut = s.split(/[?&]/)[0];
+          return /^[\w-]{11}$/.test(cut) ? cut : '';
+        }
+      }
+    }));
+  });
+</script>
+<!-- END Gallery -->
+
 <!-- BEGIN first capitalize word -->
 <script>
   document.addEventListener('DOMContentLoaded', function () {
@@ -304,6 +387,4 @@
   }
 </script>
 <!-- END first capitalize word -->
-
-
 {% endblock %}
