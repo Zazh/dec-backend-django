@@ -145,6 +145,7 @@ def catalog(request, category_slug=None):
     height_values = request.GET.getlist('height') if category_slug else []
     vid_selected = request.GET.getlist('vid') if category_slug else []
 
+
     if category_slug:
         category = get_object_or_404(ProductCategory, slug=category_slug)
         # 1. Сначала ищем подкатегории
@@ -205,13 +206,18 @@ def catalog(request, category_slug=None):
         else:
             products_qs = products_qs.order_by('id')
 
+        products_qs = products_qs.select_related('category').prefetch_related('images', 'attribute_values__attribute')
+        paginator = Paginator(products_qs, 20)
+        page_obj = paginator.get_page(request.GET.get('page', 1))
+
         products = [
             {
                 "id": p.id,
                 "title": p.title,
                 "slug": p.slug,
                 "price": int(p.price),
-                "image": p.images.first().thumb("preview") if p.images.exists() else "",
+                "images": [img.preview_url for img in p.images.all()],
+                #"image": p.images.first().thumb("preview") if p.images.exists() else "",
                 "alt": f"{p.category.title} {p.title}",
                 "title_attr": f"{p.category.title} {p.title}",
                 "category_title": p.category.title,
