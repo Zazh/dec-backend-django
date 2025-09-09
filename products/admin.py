@@ -48,8 +48,9 @@ class ProductAttributeInline(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ("title", "category", "sku", "price")
-    list_filter = ("category",)
+    list_display = ("title", "category", "sku", "price",  )
+    list_filter = ("category", ('old_price', admin.EmptyFieldListFilter))
+    readonly_fields = ['discount_percent', 'create', 'update']
     search_fields = ("title", "sku")
     inlines = [ProductImageInline, ProductAttributeInline]
 

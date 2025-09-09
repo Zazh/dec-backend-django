@@ -145,7 +145,6 @@ def catalog(request, category_slug=None):
     height_values = request.GET.getlist('height') if category_slug else []
     vid_selected = request.GET.getlist('vid') if category_slug else []
 
-
     if category_slug:
         category = get_object_or_404(ProductCategory, slug=category_slug)
         # 1. Сначала ищем подкатегории
@@ -207,28 +206,40 @@ def catalog(request, category_slug=None):
             products_qs = products_qs.order_by('id')
 
         products_qs = products_qs.select_related('category').prefetch_related('images', 'attribute_values__attribute')
+
+        # ВАЖНО: Создаем пагинатор с products_qs, а НЕ с products
         paginator = Paginator(products_qs, 20)
         page_obj = paginator.get_page(request.GET.get('page', 1))
 
+        # Теперь формируем products из page_obj.object_list
         products = [
             {
                 "id": p.id,
                 "title": p.title,
                 "slug": p.slug,
                 "price": int(p.price),
+                # ===== ПОЛЯ ДЛЯ СКИДОК =====
+                "old_price": int(p.old_price) if p.old_price else None,
+                "has_discount": p.has_discount,
+                "discount_percent": p.discount_percent,
+                "discount_display": p.get_discount_display(),
+                # ======================================
                 "images": [img.preview_url for img in p.images.all()],
-                #"image": p.images.first().thumb("preview") if p.images.exists() else "",
                 "alt": f"{p.category.title} {p.title}",
                 "title_attr": f"{p.category.title} {p.title}",
                 "category_title": p.category.title,
                 "size": " × ".join([
-                    format_number(next((a.value for a in p.attribute_values.all() if a.attribute.name.lower() == 'высота'), '')),
-                    format_number(next((a.value for a in p.attribute_values.all() if a.attribute.name.lower() == 'ширина'), '')),
-                    format_number(next((a.value for a in p.attribute_values.all() if a.attribute.name.lower() == 'длина'), '')),
+                    format_number(
+                        next((a.value for a in p.attribute_values.all() if a.attribute.name.lower() == 'высота'), '')),
+                    format_number(
+                        next((a.value for a in p.attribute_values.all() if a.attribute.name.lower() == 'ширина'), '')),
+                    format_number(
+                        next((a.value for a in p.attribute_values.all() if a.attribute.name.lower() == 'длина'), '')),
                 ]),
-                "type": next((a.value for a in p.attribute_values.all() if a.attribute.name.lower() == 'вид'), 'не указан'),
+                "type": next((a.value for a in p.attribute_values.all() if a.attribute.name.lower() == 'вид'),
+                             'не указан'),
             }
-            for p in products_qs
+            for p in page_obj.object_list  # ИСПОЛЬЗУЕМ page_obj.object_list вместо products_qs
         ]
 
         seo_title = f"{category.title} — Купить по лучшей цене"
@@ -236,17 +247,16 @@ def catalog(request, category_slug=None):
 
         vid_values = attribute_values.get('вид', [])
 
-        paginator = Paginator(products, 20)
-        page_obj = paginator.get_page(request.GET.get('page', 1))
+        # Убираем дублирующую пагинацию - page_obj уже создан выше!
 
     context = {
         "categories": categories,
-        "products": products,
+        "products": products,  # Теперь products содержит данные со скидками
         "current_category": category,
         "seo_title": seo_title,
         "seo_description": seo_description,
         "meta_description": seo_description,
-        "meta_keywords": "каталог, декор, молдинги, купить, Казахстан",  # можно добавить или брать из категории
+        "meta_keywords": "каталог, декор, молдинги, купить, Казахстан",
         "og_title": seo_title,
         "og_description": seo_description,
         "attribute_values": attribute_values,
@@ -257,7 +267,7 @@ def catalog(request, category_slug=None):
         "price_values": price_values,
         "vid_selected": vid_selected,
         "vid_values": vid_values,
-        "page_obj": page_obj,
+        "page_obj": page_obj,  # page_obj остается для навигации по страницам
         "podsvetka_values": attribute_values.get('подсветка', []),
     }
     return render(request, "catalog.html", context)

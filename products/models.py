@@ -135,6 +135,23 @@ class Product(models.Model):
     sku = models.CharField(unique=True, blank=True, max_length=100)
     price = models.DecimalField(max_digits=10, decimal_places=2)
 
+    # ===== НОВЫЕ ПОЛЯ ДЛЯ СКИДОК =====
+    old_price = models.DecimalField(
+        "Старая цена",
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text="Цена до скидки (если есть скидка)"
+    )
+    discount_percent = models.IntegerField(
+        "Процент скидки",
+        null=True,
+        blank=True,
+        help_text="Автоматически рассчитывается при сохранении"
+    )
+    # ==================================
+
     youtube_url = models.URLField("YouTube URL", blank=True, help_text="Абсолютная ссылка на видео YouTube")
 
     create = models.DateTimeField(default=timezone.now)
@@ -153,12 +170,28 @@ class Product(models.Model):
         # Генерация SKU если он не задан
         if not self.sku:
             while True:
-                # Генерируем случайный 8-значный код
                 random_sku = ''.join(random.choices(string.digits, k=8))
-                # Проверяем, что такого SKU еще нет в базе
                 if not Product.objects.filter(sku=random_sku).exists():
                     self.sku = random_sku
                     break
+
+        # ===== АВТОМАТИЧЕСКИЙ РАСЧЕТ ПРОЦЕНТА СКИДКИ =====
+        if self.old_price and self.price:
+            old_price_decimal = Decimal(str(self.old_price))
+            price_decimal = Decimal(str(self.price))
+
+            if old_price_decimal > price_decimal:
+                # Расчет процента скидки
+                discount = ((old_price_decimal - price_decimal) / old_price_decimal) * 100
+                self.discount_percent = int(round(discount))
+            else:
+                # Если старая цена меньше или равна текущей - сбрасываем скидку
+                self.old_price = None
+                self.discount_percent = None
+        else:
+            # Если нет старой цены - нет и процента скидки
+            self.discount_percent = None
+        # ================================================
 
         super().save(*args, **kwargs)
 
@@ -166,6 +199,27 @@ class Product(models.Model):
         if old_slug and old_slug != self.slug:
             for img in self.images.all():
                 img.rename_file(self.slug)
+
+    # ===== НОВЫЕ МЕТОДЫ =====
+    @property
+    def has_discount(self):
+        """Проверяет, есть ли у товара скидка"""
+        return bool(self.old_price and self.old_price > self.price)
+
+    @property
+    def discount_amount(self):
+        """Возвращает сумму скидки в тенге"""
+        if self.has_discount:
+            return self.old_price - self.price
+        return Decimal('0')
+
+    def get_discount_display(self):
+        """Возвращает строку с процентом скидки для отображения"""
+        if self.discount_percent:
+            return f"-{self.discount_percent}%"
+        return ""
+
+    # ========================
 
     def get_attribute_groups(self):
         template = (

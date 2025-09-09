@@ -71,63 +71,77 @@
     </div>
   </div>
 
-  {% for p in page_obj.object_list %}
-  <article class="card-product-item">
-    <a href="{% url 'product-detail' slug=p.slug %}" role="link" class="block">
-      <figure>
-        {% if p.images %}
-        <div class="card-product-image product-gallery relative" style="touch-action: pan-y;">
-          {% for src in p.images %}
-            <img src="{{ src }}"
-                 class="product-image absolute inset-0 w-full h-full object-cover {% if not forloop.first %}opacity-0{% endif %}"
-                 loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
-                 alt="{{ p.alt }}" title="{{ p.title_attr }}">
-          {% endfor %}
-        </div>
-        {% else %}
-           <div class="flex items-center justify-center bg-gray-100 text-gray-400 aspect-square w-full h-auto [ border-[1px] border-gray-300 ]" style="min-height:120px;">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" width="60px" height="60px" viewBox="0 0 32 32" id="icon"><defs><style>.cls-1{fill:none;}</style></defs><title>no-image</title><path d="M30,3.4141,28.5859,2,2,28.5859,3.4141,30l2-2H26a2.0027,2.0027,0,0,0,2-2V5.4141ZM26,26H7.4141l7.7929-7.793,2.3788,2.3787a2,2,0,0,0,2.8284,0L22,19l4,3.9973Zm0-5.8318-2.5858-2.5859a2,2,0,0,0-2.8284,0L19,19.1682l-2.377-2.3771L26,7.4141Z"/><path d="M6,22V19l5-4.9966,1.3733,1.3733,1.4159-1.416-1.375-1.375a2,2,0,0,0-2.8284,0L6,16.1716V6H22V4H6A2.002,2.002,0,0,0,4,6V22Z"/><rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" class="cls-1" width="32" height="32"/></svg>
-        </div>
-        {% endif %}
-
-        <figcaption class="py-3 flex gap-1 flex-col">
-          <div class="flex flex-col">
-            <div class="flex gap-3 items-end pb-2">
-              {% if p.price == 0 %}
-              <span class="text-xl leading-none font-bold">
-                <span itemprop="price" class="leading-none">Нет в наличии</span>
-              </span>
-              {% else %}
-              <span class="text-xl leading-none font-bold text-pink-500 " itemprop="offers" itemscope itemtype="https://schema.org/Offer">
-                <span itemprop="price" content="{{ p.price }}" class="leading-none">{{ p.price }}</span>
-                <span itemprop="priceCurrency" content="KZT">₸</span>
-              </span>
-              <span class="flex items-center gap-2">
-                <del class="text-sm font-bold text-gray-400">12 500 ₸</del>
-                <span class="text-sm font-bold text-pink-500">-20%</span>
-              </span>
-              {% endif %}
-            </div>
-
-            <div class="h-14 overflow-hidden">
-              <h2 class="[ flex flex-col gap-1 ]">
-                <span class="font-medium text-gray-700">{{p.title|truncatechars:50}}</span>
-              </h2>
-            </div>
-
-          </div>
-        </figcaption>
-      </figure>
-      <div class="pb-4">
-        <button class="btn-primary">Подробнее</button>
+{% for p in products %}
+<article class="card-product-item">
+  <a href="{% url 'product-detail' slug=p.slug %}" role="link" class="block">
+    <figure>
+      {% if p.images %}
+      <div class="card-product-image product-gallery relative" style="touch-action: pan-y;">
+        {% for src in p.images %}
+          <img src="{{ src }}"
+               class="product-image absolute inset-0 w-full h-full object-cover {% if not forloop.first %}opacity-0{% endif %}"
+               loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+               alt="{{ p.alt }}" title="{{ p.title_attr }}">
+        {% endfor %}
       </div>
-    </a>
-  </article>
-  {% empty %}
-    <div class="col-span-full py-8 text-center text-gray-400 text-lg" style="height:70vh">
-        Нет товаров
+      {% else %}
+         <div class="flex items-center justify-center bg-gray-100 text-gray-400 aspect-square w-full h-auto [ border-[1px] border-gray-300 ]" style="min-height:120px;">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" width="60px" height="60px" viewBox="0 0 32 32" id="icon"><defs><style>.cls-1{fill:none;}</style></defs><title>no-image</title><path d="M30,3.4141,28.5859,2,2,28.5859,3.4141,30l2-2H26a2.0027,2.0027,0,0,0,2-2V5.4141ZM26,26H7.4141l7.7929-7.793,2.3788,2.3787a2,2,0,0,0,2.8284,0L22,19l4,3.9973Zm0-5.8318-2.5858-2.5859a2,2,0,0,0-2.8284,0L19,19.1682l-2.377-2.3771L26,7.4141Z"/><path d="M6,22V19l5-4.9966,1.3733,1.3733,1.4159-1.416-1.375-1.375a2,2,0,0,0-2.8284,0L6,16.1716V6H22V4H6A2.002,2.002,0,0,0,4,6V22Z"/><rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" class="cls-1" width="32" height="32"/></svg>
+      </div>
+      {% endif %}
+
+      <figcaption class="py-3 flex gap-1 flex-col">
+        <div class="flex flex-col">
+          <div class="flex gap-3 items-end pb-2">
+            {% if p.price == 0 %}
+            <span class="text-xl leading-none font-bold">
+              <span itemprop="price" class="leading-none">Нет в наличии</span>
+            </span>
+            {% else %}
+            <!-- Текущая цена -->
+            <span class="text-xl leading-none font-bold text-pink-500" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+              <span itemprop="price" content="{{ p.price }}" class="leading-none">{{ p.price|floatformat:0 }}</span>
+              <span itemprop="priceCurrency" content="KZT">₸</span>
+            </span>
+
+            <!-- Старая цена и процент скидки -->
+            {% if p.old_price %}
+            <span class="flex items-center gap-2">
+              <del class="text-sm font-bold text-gray-400">{{ p.old_price|floatformat:0 }} ₸</del>
+              {% if p.discount_percent %}
+                <span class="text-sm font-bold text-pink-500">-{{ p.discount_percent }}%</span>
+              {% elif p.discount_display %}
+                <span class="text-sm font-bold text-pink-500">{{ p.discount_display }}</span>
+              {% else %}
+                <!-- Если процент не рассчитан, рассчитываем вручную -->
+                {% widthratio p.price p.old_price 100 as percent_of_old %}
+                <span class="text-sm font-bold text-pink-500">-{% widthratio 100 1 percent_of_old %}%</span>
+              {% endif %}
+            </span>
+            {% endif %}
+
+            {% endif %}
+          </div>
+
+          <div class="h-14 overflow-hidden">
+            <h2 class="[ flex flex-col gap-1 ]">
+              <span class="font-medium text-gray-700">{{ p.title|truncatechars:50 }}</span>
+            </h2>
+          </div>
+
+        </div>
+      </figcaption>
+    </figure>
+    <div class="pb-4">
+      <button class="btn-primary">Подробнее</button>
     </div>
-  {% endfor %}
+  </a>
+</article>
+{% empty %}
+  <div class="col-span-full py-8 text-center text-gray-400 text-lg" style="height:70vh">
+      Нет товаров
+  </div>
+{% endfor %}
 
   <!-- BEGIN pagination -->
   <div class="border-t-[1px] flex justify-between flex-wrap gap-4 items-center py-4 border-gray-300 col-span-full">
