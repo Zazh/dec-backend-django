@@ -2,12 +2,10 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, RedirectView
 
 from products.views import catalog, product_detail, catalog_root
 from blog.views import home
-
-
 
 urlpatterns = [
     path('', home, name='home'),
@@ -19,6 +17,9 @@ urlpatterns = [
     path('blog/', include('blog.urls')),
     path('', include('contacts.urls')),
     path("robots.txt", TemplateView.as_view(template_name="robots.txt", content_type="text/plain")),
+
+    # Price list
+    path('price/', RedirectView.as_view(url='/static/price/index.html', permanent=False), name='price_list'),
 ]
 
 if settings.DEBUG:

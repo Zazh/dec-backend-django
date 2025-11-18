@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>Прайс-лист</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: #fff;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            touch-action: manipulation;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .search-box {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: #f5f5f5;
+            border-radius: 6px;
+            padding: 10px 16px;
+            gap: 8px;
+            max-width: 600px;
+            margin-left: auto;
+        }
+
+        .search-box input {
+            flex: 1;
+            border: none;
+            background: none;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .search-results {
+            font-size: 12px;
+            color: #666;
+            white-space: nowrap;
+        }
+
+        .search-nav {
+            display: flex;
+            gap: 4px;
+        }
+
+        .search-nav button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            color: #666;
+        }
+
+        .search-nav button:hover {
+            color: #333;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        /* Main content */
+        .main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: -280px;
+            top: 0;
+            bottom: 0;
+            width: 280px;
+            background: #fff;
+            border-right: 1px solid #e0e0e0;
+            overflow-y: auto;
+            z-index: 100;
+            transition: left 0.3s;
+        }
+
+        .sidebar.open {
+            left: 0;
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            font-weight: 600;
+            font-size: 14px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sidebar-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .section-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            transition: background 0.15s;
+        }
+
+        .section-item:hover {
+            background: #f5f5f5;
+        }
+
+        .section-item.active {
+            background: #eff6ff;
+            color: #2563eb;
+            font-weight: 500;
+        }
+
+        .section-page {
+            font-size: 12px;
+            color: #999;
+            margin-top: 2px;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 99;
+        }
+
+        .sidebar-overlay.open {
+            display: block;
+        }
+
+        /* Viewer */
+        .viewer-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+.pages-wrapper {
+    flex: 1;
+    overflow: auto;
+    padding: 20px;
+    background: #e5e5e5;
+    -webkit-overflow-scrolling: touch;
+    /* Убираем pinch-zoom браузера, будем делать свой */
+    touch-action: pan-x pan-y;
+}
+.pages-content {
+    transform-origin: 0 0;
+    transition: transform 0.1s ease-out;
+}
+
+        .tab-item {
+            padding: 8px 16px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 12px;
+            white-space: nowrap;
+            border-right: 1px solid #e0e0e0;
+            height: 100%;
+            min-width: max-content;
+        }
+
+.page-container {
+    position: relative;
+    margin: 0 auto 20px;
+    display: inline-block;
+}
+
+.page-canvas {
+    display: block;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.text-layer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    opacity: 0.2;
+    line-height: 1.0;
+}
+
+.text-layer > span {
+    color: transparent;
+    position: absolute;
+    white-space: pre;
+    cursor: text;
+}
+
+.text-layer ::selection {
+    background: rgba(0, 0, 255, 0.3);
+}
+
+        /* Bottom tabs */
+        .tabs-bar {
+            background: #fff;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            height: 40px;
+            touch-action: manipulation;
+        }
+
+        .burger-btn {
+            padding: 8px 12px;
+            background: none;
+            border: none;
+            border-right: 1px solid #e0e0e0;
+            cursor: pointer;
+            font-size: 18px;
+            height: 100%;
+        }
+
+        .burger-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .tabs-scroll {
+            flex: 1;
+            overflow-x: auto;
+            display: flex;
+            align-items: center;
+        }
+
+        .tab-item {
+            padding: 8px 16px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 12px;
+            white-space: nowrap;
+            border-right: 1px solid #e0e0e0;
+            height: 100%;
+        }
+
+        .tab-item:hover {
+            background: #f5f5f5;
+        }
+
+        .tab-item.active {
+            background: #eff6ff;
+            color: #2563eb;
+            font-weight: 500;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .modal h2 {
+            font-size: 18px;
+            margin-bottom: 16px;
+        }
+
+        .modal-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .modal-option {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .modal-option:hover {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+
+        .modal-option-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 20px;
+        }
+
+        .modal-option-pdf .modal-option-icon {
+            background: #fee2e2;
+        }
+
+        .modal-option-excel .modal-option-icon {
+            background: #dcfce7;
+        }
+
+        .modal-option-text h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .modal-option-text p {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .modal-close {
+            margin-top: 16px;
+            width: 100%;
+            padding: 12px;
+            background: #f5f5f5;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .modal-close:hover {
+            background: #e5e5e5;
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .header h1 {
+                display: none;
+            }
+
+            .search-box {
+                max-width: none;
+            }
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <h1>Прайс-лист</h1>
+
+        <div class="search-box">
+            <span>🔍</span>
+            <input type="text" id="search-input" placeholder="Поиск по документу..." onkeyup="handleSearch(event)">
+            <span class="search-results" id="search-results"></span>
+            <div class="search-nav" id="search-nav" style="display: none;">
+                <button onclick="prevSearchResult()">▲</button>
+                <button onclick="nextSearchResult()">▼</button>
+            </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="openDownloadModal()">
+            Скачать
+        </button>
+    </header>
+
+    <!-- Main -->
+    <div class="main">
+        <!-- Sidebar overlay -->
+        <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                Разделы
+                <button class="sidebar-close" onclick="toggleSidebar()">×</button>
+            </div>
+            <div id="sections-list"></div>
+        </aside>
+
+        <!-- Viewer -->
+        <div class="viewer-container">
+            <div class="pages-wrapper" id="pages-wrapper">
+                <div class="loading">Загрузка документа...</div>
+            </div>
+
+            <!-- Bottom tabs -->
+            <div class="tabs-bar">
+                <button class="burger-btn" onclick="toggleSidebar()">☰</button>
+                <div class="tabs-scroll" id="tabs-scroll"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Download Modal -->
+    <div class="modal-overlay" id="download-modal" onclick="closeDownloadModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <h2>Скачать прайс-лист</h2>
+            <div class="modal-options">
+                <a href="price.pdf" download class="modal-option modal-option-pdf">
+                    <div class="modal-option-icon">📄</div>
+                    <div class="modal-option-text">
+                        <h3>PDF файл</h3>
+                        <p>Оригинальный документ</p>
+                    </div>
+                </a>
+                <a href="price.xlsx" download class="modal-option modal-option-excel">
+                    <div class="modal-option-icon">📊</div>
+                    <div class="modal-option-text">
+                        <h3>Excel файл</h3>
+                        <p>Таблица для редактирования</p>
+                    </div>
+                </a>
+            </div>
+            <button class="modal-close" onclick="closeDownloadModal()">Отмена</button>
+        </div>
+    </div>
+
+    <script>
+        // PDF.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        // Configuration
+        const PDF_URL = 'price.pdf';
+
+        // Sections - EDIT THIS ARRAY
+        const SECTIONS = [
+            { title: "Декор КЗ", page: 1 },
+            { title: "ДД Белый", page: 28 },
+            { title: "MEX", page: 35 },
+            { title: "Laconistiq", page: 37 },
+            { title: "ADS алюм-й проф", page: 45 },
+            { title: "Decoplume", page: 55 },
+            { title: "ДД Цветной", page: 59 },
+            { title: "GP", page: 60 },
+            { title: "Plintex", page: 65 },
+            { title: "Де БАГЕТ", page: 66 },
+            { title: "Bello Deco", page: 70 },
+            { title: "DKZ,Гибкий Мрамор", page: 74 },
+            { title: "Панели скала", page: 76 },
+            { title: "Solid", page: 77 },
+            { title: "Декор ЕК", page: 79 },
+            { title: "PROPLAS", page: 81 },
+            { title: "ТРАФАРЕТЫ", page: 82 },
+            { title: "Клей, краска", page: 90 },
+            { title: "Подложка", page: 91 },
+            { title: "Самоклейка", page: 92 },
+            { title: "Поталь ", page: 93 },
+        ];
+
+        // State
+        let pdfDoc = null;
+        let totalPages = 0;
+        let currentPage = 1;
+        let searchResults = [];
+        let currentSearchIndex = 0;
+        const scale = 2;
+
+        // Initialize
+        async function init() {
+            renderSections();
+            await loadPDF();
+        }
+
+        // Render sections in sidebar
+        function renderSections() {
+            const container = document.getElementById('sections-list');
+            container.innerHTML = SECTIONS.map((section, index) => `
+                <div class="section-item" data-page="${section.page}" onclick="goToPage(${section.page}); toggleSidebar();">
+                    ${section.title}
+                    <div class="section-page">Страница ${section.page}</div>
+                </div>
+            `).join('');
+        }
+
+        // Load PDF and render all pages
+        // Load PDF and render all pages
+async function loadPDF() {
+    try {
+        pdfDoc = await pdfjsLib.getDocument(PDF_URL).promise;
+        totalPages = pdfDoc.numPages;
+
+        const wrapper = document.getElementById('pages-wrapper');
+        wrapper.innerHTML = '';
+
+        // Create content container for zoom
+        const content = document.createElement('div');
+        content.className = 'pages-content';
+        content.id = 'pages-content';
+        wrapper.appendChild(content);
+
+        // Render all pages
+        for (let i = 1; i <= totalPages; i++) {
+            // Create container
+            const container = document.createElement('div');
+            container.className = 'page-container';
+            container.id = `page-${i}`;
+
+            // Create canvas
+            const canvas = document.createElement('canvas');
+            canvas.className = 'page-canvas';
+            container.appendChild(canvas);
+
+            // Create text layer
+            const textLayer = document.createElement('div');
+            textLayer.className = 'text-layer';
+            container.appendChild(textLayer);
+
+            content.appendChild(container);
+
+            await renderPage(i, canvas, textLayer);
+        }
+
+        // Create tabs
+        renderTabs();
+
+        // Track scroll position
+        wrapper.addEventListener('scroll', updateCurrentPage);
+
+    } catch (error) {
+        console.error('Error loading PDF:', error);
+        document.getElementById('pages-wrapper').innerHTML =
+            '<div class="loading">Ошибка загрузки PDF</div>';
+    }
+}
+
+        // Render single page
+        async function renderPage(pageNum, canvas, textLayer) {
+            const page = await pdfDoc.getPage(pageNum);
+
+            const wrapper = document.getElementById('pages-wrapper');
+            const maxWidth = wrapper.clientWidth - 40;
+            const viewport = page.getViewport({ scale: 1 });
+
+            // Базовый масштаб для отображения
+            const displayScale = Math.min(scale, maxWidth / viewport.width);
+
+            // Учитываем плотность пикселей экрана (retina)
+            const pixelRatio = window.devicePixelRatio || 1;
+            const renderScale = displayScale * pixelRatio;
+
+            const displayViewport = page.getViewport({ scale: displayScale });
+            const renderViewport = page.getViewport({ scale: renderScale });
+
+            // Canvas рендерим в высоком разрешении
+            canvas.width = renderViewport.width;
+            canvas.height = renderViewport.height;
+
+            // Но отображаем в нормальном размере через CSS
+            canvas.style.width = `${displayViewport.width}px`;
+            canvas.style.height = `${displayViewport.height}px`;
+
+            const ctx = canvas.getContext('2d');
+            await page.render({
+                canvasContext: ctx,
+                viewport: renderViewport
+            }).promise;
+
+            // Render text layer
+            const textContent = await page.getTextContent();
+
+            textLayer.style.width = `${displayViewport.width}px`;
+            textLayer.style.height = `${displayViewport.height}px`;
+
+            pdfjsLib.renderTextLayer({
+                textContent: textContent,
+                container: textLayer,
+                viewport: displayViewport,
+                textDivs: []
+            });
+        }
+
+        // Render tabs
+        function renderTabs() {
+            const container = document.getElementById('tabs-scroll');
+            container.innerHTML = '';
+
+            SECTIONS.forEach((section, index) => {
+                const tab = document.createElement('button');
+                tab.className = 'tab-item';
+                tab.textContent = section.title;
+                tab.onclick = () => goToPage(section.page);
+                if (index === 0) tab.classList.add('active');
+                container.appendChild(tab);
+            });
+        }
+
+        // Go to page
+        function goToPage(pageNum) {
+            const canvas = document.getElementById(`page-${pageNum}`);
+            if (canvas) {
+                canvas.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // Update current page based on scroll
+        function updateCurrentPage() {
+            const wrapper = document.getElementById('pages-wrapper');
+            const scrollTop = wrapper.scrollTop;
+
+            let newCurrentPage = 1;
+
+            for (let i = 1; i <= totalPages; i++) {
+                const canvas = document.getElementById(`page-${i}`);
+                if (canvas && canvas.offsetTop <= scrollTop + 100) {
+                    newCurrentPage = i;
+                }
+            }
+
+            if (newCurrentPage !== currentPage) {
+                currentPage = newCurrentPage;
+                updateActiveTabs();
+                updateActiveSection();
+            }
+        }
+
+        // Update active tab
+        function updateActiveTabs() {
+            const tabs = document.querySelectorAll('.tab-item');
+            tabs.forEach((tab, index) => {
+                const sectionPage = SECTIONS[index].page;
+                const nextSectionPage = SECTIONS[index + 1]?.page || totalPages + 1;
+
+                if (currentPage >= sectionPage && currentPage < nextSectionPage) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+        }
+
+        // Update active section
+        function updateActiveSection() {
+            const items = document.querySelectorAll('.section-item');
+            items.forEach((item, index) => {
+                const sectionPage = SECTIONS[index].page;
+                const nextSectionPage = SECTIONS[index + 1]?.page || totalPages + 1;
+
+                if (currentPage >= sectionPage && currentPage < nextSectionPage) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        // Search
+        async function handleSearch(event) {
+            if (event.key === 'Enter') {
+                await performSearch();
+            }
+        }
+
+        async function performSearch() {
+            const query = document.getElementById('search-input').value.trim().toLowerCase();
+            if (!query) {
+                clearSearch();
+                return;
+            }
+
+            searchResults = [];
+
+            for (let i = 1; i <= totalPages; i++) {
+                const page = await pdfDoc.getPage(i);
+                const textContent = await page.getTextContent();
+                const text = textContent.items.map(item => item.str).join(' ').toLowerCase();
+
+                if (text.includes(query)) {
+                    searchResults.push(i);
+                }
+            }
+
+            const resultsSpan = document.getElementById('search-results');
+            const searchNav = document.getElementById('search-nav');
+
+            if (searchResults.length > 0) {
+                currentSearchIndex = 0;
+                resultsSpan.textContent = `1/${searchResults.length}`;
+                searchNav.style.display = 'flex';
+                goToPage(searchResults[0]);
+            } else {
+                resultsSpan.textContent = 'Не найдено';
+                searchNav.style.display = 'none';
+            }
+        }
+
+        function prevSearchResult() {
+            if (searchResults.length === 0) return;
+            currentSearchIndex = (currentSearchIndex - 1 + searchResults.length) % searchResults.length;
+            document.getElementById('search-results').textContent =
+                `${currentSearchIndex + 1}/${searchResults.length}`;
+            goToPage(searchResults[currentSearchIndex]);
+        }
+
+        function nextSearchResult() {
+            if (searchResults.length === 0) return;
+            currentSearchIndex = (currentSearchIndex + 1) % searchResults.length;
+            document.getElementById('search-results').textContent =
+                `${currentSearchIndex + 1}/${searchResults.length}`;
+            goToPage(searchResults[currentSearchIndex]);
+        }
+
+        function clearSearch() {
+            searchResults = [];
+            currentSearchIndex = 0;
+            document.getElementById('search-results').textContent = '';
+            document.getElementById('search-nav').style.display = 'none';
+        }
+
+        // Modal
+        function openDownloadModal() {
+            document.getElementById('download-modal').classList.add('active');
+        }
+
+        function closeDownloadModal(event) {
+            if (!event || event.target.id === 'download-modal') {
+                document.getElementById('download-modal').classList.remove('active');
+            }
+        }
+
+        // Sidebar toggle
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebar-overlay').classList.toggle('open');
+        }
+
+        // Pinch zoom handling
+let initialDistance = 0;
+let currentScale = 1;
+let minScale = 1;
+let maxScale = 3;
+
+const pagesWrapper = document.getElementById('pages-wrapper');
+
+pagesWrapper.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 2) {
+        initialDistance = getDistance(e.touches);
+    }
+});
+
+pagesWrapper.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 2) {
+        e.preventDefault();
+        const currentDistance = getDistance(e.touches);
+        const delta = currentDistance / initialDistance;
+
+        let newScale = currentScale * delta;
+        newScale = Math.max(minScale, Math.min(maxScale, newScale));
+
+        const content = document.getElementById('pages-content');
+        content.style.transform = `scale(${newScale})`;
+
+        initialDistance = currentDistance;
+        currentScale = newScale;
+    }
+}, { passive: false });
+
+function getDistance(touches) {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+        // Start
+        init();
+    </script>
+</body>
+</html>
