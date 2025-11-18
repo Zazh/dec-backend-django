@@ -2,8 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Прайс-лист</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <style>
@@ -195,8 +194,6 @@
     padding: 20px;
     background: #e5e5e5;
     -webkit-overflow-scrolling: touch;
-    /* Убираем pinch-zoom браузера, будем делать свой */
-    touch-action: pan-x pan-y;
 }
 .pages-content {
     transform-origin: 0 0;
@@ -250,14 +247,15 @@
 }
 
         /* Bottom tabs */
-        .tabs-bar {
-            background: #fff;
-            border-top: 1px solid #e0e0e0;
-            display: flex;
-            align-items: center;
-            height: 40px;
-            touch-action: manipulation;
-        }
+.tabs-bar {
+    background: #fff;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    height: 40px;
+    touch-action: manipulation;
+    flex-shrink: 0;
+}
 
         .burger-btn {
             padding: 8px 12px;
@@ -418,55 +416,89 @@
             color: #666;
         }
 
+
+        .page-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    border-left: 1px solid #e0e0e0;
+}
+
+.page-nav button {
+    background: none;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.page-nav button:hover:not(:disabled) {
+    background: #f5f5f5;
+}
+
+.page-nav button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+#page-info {
+    font-size: 12px;
+    color: #666;
+    white-space: nowrap;
+}
+
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <h1>Прайс-лист</h1>
+<!-- Header -->
+<header class="header">
+    <h1>Прайс-лист</h1>
 
-        <div class="search-box">
-            <span>🔍</span>
-            <input type="text" id="search-input" placeholder="Поиск по документу..." onkeyup="handleSearch(event)">
-            <span class="search-results" id="search-results"></span>
-            <div class="search-nav" id="search-nav" style="display: none;">
-                <button onclick="prevSearchResult()">▲</button>
-                <button onclick="nextSearchResult()">▼</button>
-            </div>
-        </div>
-
-        <button class="btn btn-primary" onclick="openDownloadModal()">
-            Скачать
-        </button>
-    </header>
-
-    <!-- Main -->
-    <div class="main">
-        <!-- Sidebar overlay -->
-        <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
-
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                Разделы
-                <button class="sidebar-close" onclick="toggleSidebar()">×</button>
-            </div>
-            <div id="sections-list"></div>
-        </aside>
-
-        <!-- Viewer -->
-        <div class="viewer-container">
-            <div class="pages-wrapper" id="pages-wrapper">
-                <div class="loading">Загрузка документа...</div>
-            </div>
-
-            <!-- Bottom tabs -->
-            <div class="tabs-bar">
-                <button class="burger-btn" onclick="toggleSidebar()">☰</button>
-                <div class="tabs-scroll" id="tabs-scroll"></div>
-            </div>
+    <div class="search-box">
+        <span>🔍</span>
+        <input type="text" id="search-input" placeholder="Поиск по документу..." onkeyup="handleSearch(event)">
+        <span class="search-results" id="search-results"></span>
+        <div class="search-nav" id="search-nav" style="display: none;">
+            <button onclick="prevSearchResult()">▲</button>
+            <button onclick="nextSearchResult()">▼</button>
         </div>
     </div>
+
+    <button class="btn btn-primary" onclick="openDownloadModal()">
+        Скачать
+    </button>
+</header>
+
+<!-- Tabs bar - под шапкой -->
+<div class="tabs-bar">
+    <button class="burger-btn" onclick="toggleSidebar()">☰</button>
+    <div class="tabs-scroll" id="tabs-scroll"></div>
+</div>
+
+    <!-- Main -->
+<div class="main">
+    <!-- Sidebar overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            Разделы
+            <button class="sidebar-close" onclick="toggleSidebar()">×</button>
+        </div>
+        <div id="sections-list"></div>
+    </aside>
+
+    <!-- Viewer -->
+    <div class="viewer-container">
+        <div class="pages-wrapper" id="pages-wrapper">
+            <div class="loading">Загрузка документа...</div>
+        </div>
+    </div>
+</div>
 
     <!-- Download Modal -->
     <div class="modal-overlay" id="download-modal" onclick="closeDownloadModal(event)">
@@ -492,353 +524,323 @@
         </div>
     </div>
 
-    <script>
-        // PDF.js worker
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+<script>
+    // PDF.js worker
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        // Configuration
-        const PDF_URL = 'price.pdf';
+    // Configuration
+    const PDF_URL = 'price.pdf';
 
-        // Sections - EDIT THIS ARRAY
-        const SECTIONS = [
-            { title: "Декор КЗ", page: 1 },
-            { title: "ДД Белый", page: 28 },
-            { title: "MEX", page: 35 },
-            { title: "Laconistiq", page: 37 },
-            { title: "ADS алюм-й проф", page: 45 },
-            { title: "Decoplume", page: 55 },
-            { title: "ДД Цветной", page: 59 },
-            { title: "GP", page: 60 },
-            { title: "Plintex", page: 65 },
-            { title: "Де БАГЕТ", page: 66 },
-            { title: "Bello Deco", page: 70 },
-            { title: "DKZ,Гибкий Мрамор", page: 74 },
-            { title: "Панели скала", page: 76 },
-            { title: "Solid", page: 77 },
-            { title: "Декор ЕК", page: 79 },
-            { title: "PROPLAS", page: 81 },
-            { title: "ТРАФАРЕТЫ", page: 82 },
-            { title: "Клей, краска", page: 90 },
-            { title: "Подложка", page: 91 },
-            { title: "Самоклейка", page: 92 },
-            { title: "Поталь ", page: 93 },
-        ];
+    // Sections - EDIT THIS ARRAY
+    const SECTIONS = [
+        { title: "Декор КЗ", page: 1 },
+        { title: "ДД Белый", page: 28 },
+        { title: "MEX", page: 35 },
+        { title: "Laconistiq", page: 37 },
+        { title: "ADS алюм-й проф", page: 45 },
+        { title: "Decoplume", page: 55 },
+        { title: "ДД Цветной", page: 59 },
+        { title: "GP", page: 60 },
+        { title: "Plintex", page: 65 },
+        { title: "Де БАГЕТ", page: 66 },
+        { title: "Bello Deco", page: 70 },
+        { title: "DKZ,Гибкий Мрамор", page: 74 },
+        { title: "Панели скала", page: 76 },
+        { title: "Solid", page: 77 },
+        { title: "Декор ЕК", page: 79 },
+        { title: "PROPLAS", page: 81 },
+        { title: "ТРАФАРЕТЫ", page: 82 },
+        { title: "Клей, краска", page: 90 },
+        { title: "Подложка", page: 91 },
+        { title: "Самоклейка", page: 92 },
+        { title: "Поталь ", page: 93 },
+    ];
 
-        // State
-        let pdfDoc = null;
-        let totalPages = 0;
-        let currentPage = 1;
-        let searchResults = [];
-        let currentSearchIndex = 0;
-        const scale = 2;
+    // State
+    let pdfDoc = null;
+    let totalPages = 0;
+    let currentSectionIndex = 0;
+    let searchResults = [];
+    let currentSearchIndex = 0;
+    const scale = 2.5;
 
-        // Initialize
-        async function init() {
-            renderSections();
-            await loadPDF();
+    // Initialize
+    async function init() {
+        renderSections();
+        await loadPDF();
+    }
+
+    // Render sections in sidebar
+    function renderSections() {
+        const container = document.getElementById('sections-list');
+        container.innerHTML = SECTIONS.map((section, index) => `
+            <div class="section-item" data-index="${index}" onclick="goToSection(${index}); toggleSidebar();">
+                ${section.title}
+                <div class="section-page">Страница ${section.page}</div>
+            </div>
+        `).join('');
+    }
+
+    // Get page range for section
+    function getSectionRange(index) {
+        const startPage = SECTIONS[index].page;
+        const endPage = SECTIONS[index + 1] ? SECTIONS[index + 1].page - 1 : totalPages;
+        return { startPage, endPage };
+    }
+
+    // Load PDF
+    async function loadPDF() {
+        try {
+            pdfDoc = await pdfjsLib.getDocument(PDF_URL).promise;
+            totalPages = pdfDoc.numPages;
+
+            // Create tabs
+            renderTabs();
+
+            // Render first section
+            await renderSection(0);
+
+        } catch (error) {
+            console.error('Error loading PDF:', error);
+            document.getElementById('pages-wrapper').innerHTML =
+                '<div class="loading">Ошибка загрузки PDF</div>';
         }
+    }
 
-        // Render sections in sidebar
-        function renderSections() {
-            const container = document.getElementById('sections-list');
-            container.innerHTML = SECTIONS.map((section, index) => `
-                <div class="section-item" data-page="${section.page}" onclick="goToPage(${section.page}); toggleSidebar();">
-                    ${section.title}
-                    <div class="section-page">Страница ${section.page}</div>
-                </div>
-            `).join('');
-        }
-
-        // Load PDF and render all pages
-        // Load PDF and render all pages
-async function loadPDF() {
-    try {
-        pdfDoc = await pdfjsLib.getDocument(PDF_URL).promise;
-        totalPages = pdfDoc.numPages;
+    // Render all pages in section
+    async function renderSection(index) {
+        currentSectionIndex = index;
+        const { startPage, endPage } = getSectionRange(index);
 
         const wrapper = document.getElementById('pages-wrapper');
+        wrapper.innerHTML = '<div class="loading">Загрузка раздела...</div>';
+
+        // Small delay to show loading
+        await new Promise(r => setTimeout(r, 50));
+
         wrapper.innerHTML = '';
 
-        // Create content container for zoom
-        const content = document.createElement('div');
-        content.className = 'pages-content';
-        content.id = 'pages-content';
-        wrapper.appendChild(content);
-
-        // Render all pages
-        for (let i = 1; i <= totalPages; i++) {
-            // Create container
+        // Render all pages in section
+        for (let i = startPage; i <= endPage; i++) {
             const container = document.createElement('div');
             container.className = 'page-container';
             container.id = `page-${i}`;
 
-            // Create canvas
             const canvas = document.createElement('canvas');
             canvas.className = 'page-canvas';
             container.appendChild(canvas);
 
-            // Create text layer
             const textLayer = document.createElement('div');
             textLayer.className = 'text-layer';
             container.appendChild(textLayer);
 
-            content.appendChild(container);
+            wrapper.appendChild(container);
 
             await renderPage(i, canvas, textLayer);
         }
 
-        // Create tabs
-        renderTabs();
+        // Update UI
+        updateActiveTabs();
+        updateActiveSection();
 
-        // Track scroll position
-        wrapper.addEventListener('scroll', updateCurrentPage);
-
-    } catch (error) {
-        console.error('Error loading PDF:', error);
-        document.getElementById('pages-wrapper').innerHTML =
-            '<div class="loading">Ошибка загрузки PDF</div>';
+        // Scroll to top
+        wrapper.scrollTop = 0;
     }
+
+    // Render single page
+// Render single page
+async function renderPage(pageNum, canvas, textLayer) {
+    const page = await pdfDoc.getPage(pageNum);
+
+    const wrapper = document.getElementById('pages-wrapper');
+    const maxWidth = wrapper.clientWidth - 40;
+    const viewport = page.getViewport({ scale: 1 });
+
+    const displayScale = Math.min(scale, maxWidth / viewport.width);
+
+    // Рендерим с запасом для зума (3x поверх devicePixelRatio)
+    const pixelRatio = window.devicePixelRatio || 1;
+    const zoomBuffer = 2; // Запас качества для увеличения
+    const renderScale = displayScale * pixelRatio * zoomBuffer;
+
+    const displayViewport = page.getViewport({ scale: displayScale });
+    const renderViewport = page.getViewport({ scale: renderScale });
+
+    canvas.width = renderViewport.width;
+    canvas.height = renderViewport.height;
+    canvas.style.width = `${displayViewport.width}px`;
+    canvas.style.height = `${displayViewport.height}px`;
+
+    const ctx = canvas.getContext('2d');
+    await page.render({
+        canvasContext: ctx,
+        viewport: renderViewport
+    }).promise;
+
+    // Render text layer
+    const textContent = await page.getTextContent();
+
+    textLayer.style.width = `${displayViewport.width}px`;
+    textLayer.style.height = `${displayViewport.height}px`;
+    textLayer.style.setProperty('--scale-factor', displayScale);
+
+    pdfjsLib.renderTextLayer({
+        textContentSource: textContent,
+        container: textLayer,
+        viewport: displayViewport
+    });
 }
 
-        // Render single page
-        async function renderPage(pageNum, canvas, textLayer) {
-            const page = await pdfDoc.getPage(pageNum);
+    // Render tabs
+    function renderTabs() {
+        const container = document.getElementById('tabs-scroll');
+        container.innerHTML = '';
 
-            const wrapper = document.getElementById('pages-wrapper');
-            const maxWidth = wrapper.clientWidth - 40;
-            const viewport = page.getViewport({ scale: 1 });
+        SECTIONS.forEach((section, index) => {
+            const tab = document.createElement('button');
+            tab.className = 'tab-item';
+            tab.textContent = section.title;
+            tab.onclick = () => goToSection(index);
+            if (index === 0) tab.classList.add('active');
+            container.appendChild(tab);
+        });
+    }
 
-            // Базовый масштаб для отображения
-            const displayScale = Math.min(scale, maxWidth / viewport.width);
+    // Go to section
+    async function goToSection(index) {
+        if (index === currentSectionIndex) return;
+        await renderSection(index);
+    }
 
-            // Учитываем плотность пикселей экрана (retina)
-            const pixelRatio = window.devicePixelRatio || 1;
-            const renderScale = displayScale * pixelRatio;
-
-            const displayViewport = page.getViewport({ scale: displayScale });
-            const renderViewport = page.getViewport({ scale: renderScale });
-
-            // Canvas рендерим в высоком разрешении
-            canvas.width = renderViewport.width;
-            canvas.height = renderViewport.height;
-
-            // Но отображаем в нормальном размере через CSS
-            canvas.style.width = `${displayViewport.width}px`;
-            canvas.style.height = `${displayViewport.height}px`;
-
-            const ctx = canvas.getContext('2d');
-            await page.render({
-                canvasContext: ctx,
-                viewport: renderViewport
-            }).promise;
-
-            // Render text layer
-            const textContent = await page.getTextContent();
-
-            textLayer.style.width = `${displayViewport.width}px`;
-            textLayer.style.height = `${displayViewport.height}px`;
-
-            pdfjsLib.renderTextLayer({
-                textContent: textContent,
-                container: textLayer,
-                viewport: displayViewport,
-                textDivs: []
-            });
-        }
-
-        // Render tabs
-        function renderTabs() {
-            const container = document.getElementById('tabs-scroll');
-            container.innerHTML = '';
-
-            SECTIONS.forEach((section, index) => {
-                const tab = document.createElement('button');
-                tab.className = 'tab-item';
-                tab.textContent = section.title;
-                tab.onclick = () => goToPage(section.page);
-                if (index === 0) tab.classList.add('active');
-                container.appendChild(tab);
-            });
-        }
-
-        // Go to page
-        function goToPage(pageNum) {
-            const canvas = document.getElementById(`page-${pageNum}`);
-            if (canvas) {
-                canvas.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Go to specific page (for search)
+    async function goToPage(pageNum) {
+        // Find section for this page
+        let sectionIndex = 0;
+        for (let i = SECTIONS.length - 1; i >= 0; i--) {
+            if (pageNum >= SECTIONS[i].page) {
+                sectionIndex = i;
+                break;
             }
         }
 
-        // Update current page based on scroll
-        function updateCurrentPage() {
-            const wrapper = document.getElementById('pages-wrapper');
-            const scrollTop = wrapper.scrollTop;
-
-            let newCurrentPage = 1;
-
-            for (let i = 1; i <= totalPages; i++) {
-                const canvas = document.getElementById(`page-${i}`);
-                if (canvas && canvas.offsetTop <= scrollTop + 100) {
-                    newCurrentPage = i;
-                }
-            }
-
-            if (newCurrentPage !== currentPage) {
-                currentPage = newCurrentPage;
-                updateActiveTabs();
-                updateActiveSection();
-            }
+        // Load section if different
+        if (sectionIndex !== currentSectionIndex) {
+            await renderSection(sectionIndex);
         }
 
-        // Update active tab
-        function updateActiveTabs() {
-            const tabs = document.querySelectorAll('.tab-item');
-            tabs.forEach((tab, index) => {
-                const sectionPage = SECTIONS[index].page;
-                const nextSectionPage = SECTIONS[index + 1]?.page || totalPages + 1;
-
-                if (currentPage >= sectionPage && currentPage < nextSectionPage) {
-                    tab.classList.add('active');
-                } else {
-                    tab.classList.remove('active');
-                }
-            });
+        // Scroll to page
+        const container = document.getElementById(`page-${pageNum}`);
+        if (container) {
+            container.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
+    }
 
-        // Update active section
-        function updateActiveSection() {
-            const items = document.querySelectorAll('.section-item');
-            items.forEach((item, index) => {
-                const sectionPage = SECTIONS[index].page;
-                const nextSectionPage = SECTIONS[index + 1]?.page || totalPages + 1;
-
-                if (currentPage >= sectionPage && currentPage < nextSectionPage) {
-                    item.classList.add('active');
-                } else {
-                    item.classList.remove('active');
-                }
-            });
-        }
-
-        // Search
-        async function handleSearch(event) {
-            if (event.key === 'Enter') {
-                await performSearch();
-            }
-        }
-
-        async function performSearch() {
-            const query = document.getElementById('search-input').value.trim().toLowerCase();
-            if (!query) {
-                clearSearch();
-                return;
-            }
-
-            searchResults = [];
-
-            for (let i = 1; i <= totalPages; i++) {
-                const page = await pdfDoc.getPage(i);
-                const textContent = await page.getTextContent();
-                const text = textContent.items.map(item => item.str).join(' ').toLowerCase();
-
-                if (text.includes(query)) {
-                    searchResults.push(i);
-                }
-            }
-
-            const resultsSpan = document.getElementById('search-results');
-            const searchNav = document.getElementById('search-nav');
-
-            if (searchResults.length > 0) {
-                currentSearchIndex = 0;
-                resultsSpan.textContent = `1/${searchResults.length}`;
-                searchNav.style.display = 'flex';
-                goToPage(searchResults[0]);
+    // Update active tab
+    function updateActiveTabs() {
+        const tabs = document.querySelectorAll('.tab-item');
+        tabs.forEach((tab, index) => {
+            if (index === currentSectionIndex) {
+                tab.classList.add('active');
             } else {
-                resultsSpan.textContent = 'Не найдено';
-                searchNav.style.display = 'none';
+                tab.classList.remove('active');
+            }
+        });
+    }
+
+    // Update active section
+    function updateActiveSection() {
+        const items = document.querySelectorAll('.section-item');
+        items.forEach((item, index) => {
+            if (index === currentSectionIndex) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
+    }
+
+    // Search
+    async function handleSearch(event) {
+        if (event.key === 'Enter') {
+            await performSearch();
+        }
+    }
+
+    async function performSearch() {
+        const query = document.getElementById('search-input').value.trim().toLowerCase();
+        if (!query) {
+            clearSearch();
+            return;
+        }
+
+        searchResults = [];
+
+        for (let i = 1; i <= totalPages; i++) {
+            const page = await pdfDoc.getPage(i);
+            const textContent = await page.getTextContent();
+            const text = textContent.items.map(item => item.str).join(' ').toLowerCase();
+
+            if (text.includes(query)) {
+                searchResults.push(i);
             }
         }
 
-        function prevSearchResult() {
-            if (searchResults.length === 0) return;
-            currentSearchIndex = (currentSearchIndex - 1 + searchResults.length) % searchResults.length;
-            document.getElementById('search-results').textContent =
-                `${currentSearchIndex + 1}/${searchResults.length}`;
-            goToPage(searchResults[currentSearchIndex]);
-        }
+        const resultsSpan = document.getElementById('search-results');
+        const searchNav = document.getElementById('search-nav');
 
-        function nextSearchResult() {
-            if (searchResults.length === 0) return;
-            currentSearchIndex = (currentSearchIndex + 1) % searchResults.length;
-            document.getElementById('search-results').textContent =
-                `${currentSearchIndex + 1}/${searchResults.length}`;
-            goToPage(searchResults[currentSearchIndex]);
-        }
-
-        function clearSearch() {
-            searchResults = [];
+        if (searchResults.length > 0) {
             currentSearchIndex = 0;
-            document.getElementById('search-results').textContent = '';
-            document.getElementById('search-nav').style.display = 'none';
+            resultsSpan.textContent = `1/${searchResults.length}`;
+            searchNav.style.display = 'flex';
+            await goToPage(searchResults[0]);
+        } else {
+            resultsSpan.textContent = 'Не найдено';
+            searchNav.style.display = 'none';
         }
-
-        // Modal
-        function openDownloadModal() {
-            document.getElementById('download-modal').classList.add('active');
-        }
-
-        function closeDownloadModal(event) {
-            if (!event || event.target.id === 'download-modal') {
-                document.getElementById('download-modal').classList.remove('active');
-            }
-        }
-
-        // Sidebar toggle
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
-            document.getElementById('sidebar-overlay').classList.toggle('open');
-        }
-
-        // Pinch zoom handling
-let initialDistance = 0;
-let currentScale = 1;
-let minScale = 1;
-let maxScale = 3;
-
-const pagesWrapper = document.getElementById('pages-wrapper');
-
-pagesWrapper.addEventListener('touchstart', (e) => {
-    if (e.touches.length === 2) {
-        initialDistance = getDistance(e.touches);
     }
-});
 
-pagesWrapper.addEventListener('touchmove', (e) => {
-    if (e.touches.length === 2) {
-        e.preventDefault();
-        const currentDistance = getDistance(e.touches);
-        const delta = currentDistance / initialDistance;
-
-        let newScale = currentScale * delta;
-        newScale = Math.max(minScale, Math.min(maxScale, newScale));
-
-        const content = document.getElementById('pages-content');
-        content.style.transform = `scale(${newScale})`;
-
-        initialDistance = currentDistance;
-        currentScale = newScale;
+    async function prevSearchResult() {
+        if (searchResults.length === 0) return;
+        currentSearchIndex = (currentSearchIndex - 1 + searchResults.length) % searchResults.length;
+        document.getElementById('search-results').textContent =
+            `${currentSearchIndex + 1}/${searchResults.length}`;
+        await goToPage(searchResults[currentSearchIndex]);
     }
-}, { passive: false });
 
-function getDistance(touches) {
-    const dx = touches[0].clientX - touches[1].clientX;
-    const dy = touches[0].clientY - touches[1].clientY;
-    return Math.sqrt(dx * dx + dy * dy);
-}
+    async function nextSearchResult() {
+        if (searchResults.length === 0) return;
+        currentSearchIndex = (currentSearchIndex + 1) % searchResults.length;
+        document.getElementById('search-results').textContent =
+            `${currentSearchIndex + 1}/${searchResults.length}`;
+        await goToPage(searchResults[currentSearchIndex]);
+    }
 
-        // Start
-        init();
-    </script>
+    function clearSearch() {
+        searchResults = [];
+        currentSearchIndex = 0;
+        document.getElementById('search-results').textContent = '';
+        document.getElementById('search-nav').style.display = 'none';
+    }
+
+    // Modal
+    function openDownloadModal() {
+        document.getElementById('download-modal').classList.add('active');
+    }
+
+    function closeDownloadModal(event) {
+        if (!event || event.target.id === 'download-modal') {
+            document.getElementById('download-modal').classList.remove('active');
+        }
+    }
+
+    // Sidebar toggle
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('sidebar-overlay').classList.toggle('open');
+    }
+
+    // Start
+    init();
+</script>
 </body>
 </html>
