@@ -98,13 +98,13 @@
               <span itemprop="price" class="leading-none">Нет в наличии</span>
             </span>
             {% else %}
-            <!-- Текущая цена -->
+            <!-- Текущая цена
             <span class="text-xl leading-none font-bold text-pink-500" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
               <span itemprop="price" content="{{ p.price }}" class="leading-none">{{ p.price|floatformat:0 }}</span>
               <span itemprop="priceCurrency" content="KZT">₸</span>
-            </span>
+            </span>-->
 
-            <!-- Старая цена и процент скидки -->
+            <!-- Старая цена и процент скидки
             {% if p.old_price %}
             <span class="flex items-center gap-2">
               <del class="text-sm font-bold text-gray-400">{{ p.old_price|floatformat:0 }} ₸</del>
@@ -113,11 +113,11 @@
               {% elif p.discount_display %}
                 <span class="text-sm font-bold text-pink-500">{{ p.discount_display }}</span>
               {% else %}
-                <!-- Если процент не рассчитан, рассчитываем вручную -->
                 {% widthratio p.price p.old_price 100 as percent_of_old %}
                 <span class="text-sm font-bold text-pink-500">-{% widthratio 100 1 percent_of_old %}%</span>
               {% endif %}
             </span>
+                -->
             {% endif %}
 
             {% endif %}

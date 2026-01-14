@@ -2,3 +2,5 @@
 /media
 /staticfiles
 /data
+db_dump.sql
+rec_data.json
